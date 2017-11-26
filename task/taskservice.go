@@ -2,10 +2,10 @@ package task
 
 import (
 	"github.com/devfeel/dottask"
-	"emoney/tongjiservice/config"
+	"TechPlat/tongjiservice/config"
 	"fmt"
-	"emoney/tongjiservice/util/log"
-	"emoney/tongjiservice/task/tasks"
+	"TechPlat/tongjiservice/util/log"
+	"TechPlat/tongjiservice/task/tasks"
 )
 
 var (

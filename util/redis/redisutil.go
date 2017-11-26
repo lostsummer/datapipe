@@ -2,10 +2,7 @@
 package redisutil
 
 import (
-	"emoney/tongjiservice/config"
-
 	"sync"
-
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -57,11 +54,6 @@ func GetRedisClient(address string) *RedisClient {
 		mapMutex.Unlock()
 	}
 	return redis
-}
-
-//获取完整Key，增加统一默认前缀
-func GetFullKey(key string) string {
-	return config.CurrentConfig.Redis.KeyCommonPre + ":" + key
 }
 
 //获取指定key的内容

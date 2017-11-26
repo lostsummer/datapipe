@@ -1,15 +1,15 @@
 package tasks
 
 import (
-	"emoney/tongjiservice/config"
-	"emoney/tongjiservice/const/log"
-	"emoney/tongjiservice/util/http"
-	"emoney/tongjiservice/util/log"
-	"emoney/tongjiservice/util/redis"
-	"emoney/tongjiservice/repository/impl"
+	"TechPlat/tongjiservice/config"
+	"TechPlat/tongjiservice/const/log"
+	"TechPlat/tongjiservice/util/http"
+	"TechPlat/tongjiservice/util/log"
+	"TechPlat/tongjiservice/util/redis"
+	"TechPlat/tongjiservice/repository/impl"
 	"github.com/devfeel/dottask"
-	"emoney/tongjiservice/trigger"
-	"emoney/tongjiservice/counter"
+	"TechPlat/tongjiservice/trigger"
+	"TechPlat/tongjiservice/counter"
 )
 
 var (

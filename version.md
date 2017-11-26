@@ -1,4 +1,9 @@
 
+
+#### version 1.1
+1、调整Counter服务为异步过程
+2、2017-11-26 15:00
+
 #### version 1.0
 1、支持Redis-List作为输入数据源
 2、支持Mongodb与Http处理器

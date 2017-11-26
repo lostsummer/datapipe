@@ -1,7 +1,7 @@
 package config
 
 import (
-	"emoney/tongjiservice/util/log"
+	"TechPlat/tongjiservice/util/log"
 	"encoding/xml"
 	"io/ioutil"
 	"os"

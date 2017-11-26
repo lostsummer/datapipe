@@ -5,16 +5,15 @@
 package main
 
 import (
-	"emoney/tongjiservice/config"
-	"emoney/tongjiservice/util/common"
-	"emoney/tongjiservice/util/log"
-	"emoney/tongjiservice/task"
+	"TechPlat/tongjiservice/config"
+	"TechPlat/tongjiservice/util/common"
+	"TechPlat/tongjiservice/util/log"
+	"TechPlat/tongjiservice/task"
 	"flag"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
-	"emoney/tongjiservice/core/exception"
+	"TechPlat/tongjiservice/core/exception"
 )
 
 var (
