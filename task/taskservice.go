@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"TechPlat/tongjiservice/util/log"
 	"TechPlat/tongjiservice/task/tasks"
+	"TechPlat/tongjiservice/global"
+	"TechPlat/tongjiservice/counter"
 )
 
 var (
@@ -15,6 +17,7 @@ var (
 
 func init() {
 	innerLogger = logger.GetInnerLogger()
+	taskService = global.TaskService
 }
 
 const(
@@ -32,12 +35,13 @@ func LoadTasks(service *task.TaskService) {
 			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.HttpHandler, v)
 		}
 	}
+
+	//load queue task
+	global.TaskService.CreateQueueTask(counter.QueueTaskName, true,1, counter.DealMessage, nil, counter.QueueSize)
 	innerLogger.Info("Task::RegisterTask end")
 }
 
 func StartTaskService() {
-	taskService = task.StartNewService()
-
 	//step 1: LoadTasks
 	LoadTasks(taskService)
 

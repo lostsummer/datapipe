@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"syscall"
 	"TechPlat/tongjiservice/core/exception"
+	"TechPlat/tongjiservice/counter"
 )
 
 var (
@@ -50,6 +51,9 @@ func main() {
 
 	//启动Task Service
 	task.StartTaskService()
+
+	//启动计数器服务
+	counter.StartCounter()
 
 	//阻塞主线程，同时等待操作系统信号
 	waitSignal()

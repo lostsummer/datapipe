@@ -1,4 +1,4 @@
-package constdefine
+package _const
 
 const (
 	DefaultDateLayout     = "2006-01-02"
