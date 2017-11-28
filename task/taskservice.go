@@ -2,12 +2,12 @@ package task
 
 import (
 	"github.com/devfeel/dottask"
-	"TechPlat/tongjiservice/config"
+	"TechPlat/datapipe/config"
 	"fmt"
-	"TechPlat/tongjiservice/util/log"
-	"TechPlat/tongjiservice/task/tasks"
-	"TechPlat/tongjiservice/global"
-	"TechPlat/tongjiservice/counter"
+	"TechPlat/datapipe/util/log"
+	"TechPlat/datapipe/task/tasks"
+	"TechPlat/datapipe/global"
+	"TechPlat/datapipe/counter"
 )
 
 var (

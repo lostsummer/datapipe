@@ -5,16 +5,16 @@
 package main
 
 import (
-	"TechPlat/tongjiservice/config"
-	"TechPlat/tongjiservice/util/common"
-	"TechPlat/tongjiservice/util/log"
-	"TechPlat/tongjiservice/task"
+	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/util/common"
+	"TechPlat/datapipe/util/log"
+	"TechPlat/datapipe/task"
 	"flag"
 	"os"
 	"os/signal"
 	"syscall"
-	"TechPlat/tongjiservice/core/exception"
-	"TechPlat/tongjiservice/counter"
+	"TechPlat/datapipe/core/exception"
+	"TechPlat/datapipe/counter"
 )
 
 var (

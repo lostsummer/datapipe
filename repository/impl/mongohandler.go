@@ -1,8 +1,8 @@
 package impl
 
 import (
-	"TechPlat/tongjiservice/const/log"
-	"TechPlat/tongjiservice/util/log"
+	"TechPlat/datapipe/const/log"
+	"TechPlat/datapipe/util/log"
 	"encoding/json"
 
 	"gopkg.in/mgo.v2"

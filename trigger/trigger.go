@@ -1,7 +1,7 @@
 package trigger
 
 import (
-	"TechPlat/tongjiservice/util/redis"
+	"TechPlat/datapipe/util/redis"
 	"github.com/pkg/errors"
 )
 

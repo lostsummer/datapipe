@@ -1,15 +1,15 @@
 package tasks
 
 import (
-	"TechPlat/tongjiservice/config"
-	"TechPlat/tongjiservice/const/log"
-	"TechPlat/tongjiservice/util/http"
-	"TechPlat/tongjiservice/util/log"
-	"TechPlat/tongjiservice/util/redis"
-	"TechPlat/tongjiservice/repository/impl"
+	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/const/log"
+	"TechPlat/datapipe/util/http"
+	"TechPlat/datapipe/util/log"
+	"TechPlat/datapipe/util/redis"
+	"TechPlat/datapipe/repository/impl"
 	"github.com/devfeel/dottask"
-	"TechPlat/tongjiservice/trigger"
-	"TechPlat/tongjiservice/counter"
+	"TechPlat/datapipe/trigger"
+	"TechPlat/datapipe/counter"
 )
 
 var (

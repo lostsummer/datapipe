@@ -2,8 +2,8 @@ package counter
 
 import (
 	"errors"
-	"TechPlat/tongjiservice/util/redis"
-	"TechPlat/tongjiservice/global"
+	"TechPlat/datapipe/util/redis"
+	"TechPlat/datapipe/global"
 	"time"
 	"sync"
 	"github.com/devfeel/dottask"

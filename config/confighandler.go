@@ -1,7 +1,7 @@
 package config
 
 import (
-	"TechPlat/tongjiservice/util/log"
+	"TechPlat/datapipe/util/log"
 	"encoding/xml"
 	"io/ioutil"
 	"os"
