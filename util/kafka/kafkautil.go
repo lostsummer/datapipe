@@ -3,19 +3,13 @@ package kafka
 import(
 	"github.com/Shopify/sarama"
 	"strings"
-	"os"
 	"github.com/pkg/errors"
 	"fmt"
-	"log"
 )
 
-var(
-	logger = log.New(os.Stderr, "[datapipe]", log.LstdFlags)
-)
 
 // SendMessage send topic and value to kafka server
 func SendMessage(kafkaServerUrls string, topic, value string) (partition int32, offset int64, err error){
-	sarama.Logger = logger
 	config := sarama.NewConfig()
 	config.ClientID = "datapipe"
 	config.Producer.RequiredAcks = sarama.WaitForAll
