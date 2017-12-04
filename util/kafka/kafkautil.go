@@ -23,7 +23,7 @@ func SendMessage(kafkaServerUrls string, topic, value string) (partition int32, 
 	defer producer.Close()
 	msg := &sarama.ProducerMessage{}
 	msg.Topic = topic
-	msg.Partition = 1 //仅当设定为ManualPartitioner时，该设置才生效
+	//msg.Partition = 1 //仅当设定为ManualPartitioner时，该设置才生效
 	msg.Key = sarama.StringEncoder("default")
 	msg.Value = sarama.ByteEncoder(value)
 	partition, offset, err = producer.SendMessage(msg)
