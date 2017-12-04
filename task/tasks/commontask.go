@@ -142,7 +142,7 @@ func KafkaHandler(ctx *task.TaskContext) error {
 
 	partition, offset, kafkaErr:=kafka.SendMessage(kafkaServerUrl, taskConf.TargetValue, val)
 	if kafkaErr != nil {
-		logger.Log(title+"InsertKafkaData["+val+"] error -> "+kafkaErr.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
+		logger.Log(title+":InsertKafkaData["+val+"] error -> "+kafkaErr.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
 	} else {
 		logger.Log(title+":InsertKafkaData success -> ["+val+"] ["+
 			strconv.Itoa(int(partition))+ "," + strconv.FormatInt(offset, 10)+
