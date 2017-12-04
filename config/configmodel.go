@@ -16,7 +16,7 @@ type AppConfig struct {
 	Log     Log        `xml:"log"`
 	Redis   Redis      `xml:"redis"`
 	MongoDB MongoDB    `xml:"mongodb"`
-	Kafka 	*Kafka    `xml:"kafka"`
+	Kafka 	Kafka    `xml:"kafka"`
 	Tasks   []TaskInfo `xml:"tasks>task"`
 	TaskMap map[string]*TaskInfo
 }

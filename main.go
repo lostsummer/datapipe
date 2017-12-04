@@ -29,7 +29,7 @@ func init() {
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			ex := exception.CatchError("TongjiService main->recover error", err)
+			ex := exception.CatchError("DataPipe main->recover error", err)
 			innerLogger.Error(ex.GetDefaultLogString())
 			os.Stdout.Write([]byte(ex.GetDefaultLogString()))
 		}
