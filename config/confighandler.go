@@ -11,7 +11,7 @@ import (
 const ()
 
 var (
-	CurrentConfig  AppConfig
+	CurrentConfig  *AppConfig
 	CurrentBaseDir string
 	innerLogger    *logger.InnerLogger
 
@@ -37,8 +37,8 @@ func InitConfig(configFile string) *AppConfig {
 		os.Exit(1)
 	}
 
-	var result AppConfig
-	err = xml.Unmarshal(content, &result)
+	var result *AppConfig
+	err = xml.Unmarshal(content, result)
 	if err != nil {
 		innerLogger.Warn("AppConfig::InitConfig 配置文件[" + configFile + "]解析失败 - " + err.Error())
 		os.Exit(1)
@@ -53,5 +53,17 @@ func InitConfig(configFile string) *AppConfig {
 
 	innerLogger.Info("AppConfig::InitConfig 配置文件[" + configFile + "]完成")
 
-	return &CurrentConfig
+	return CurrentConfig
+}
+
+
+// GetKafkaServerUrl return kafka server info
+func GetKafkaServerUrl() string{
+	if CurrentConfig == nil{
+		return ""
+	}
+	if CurrentConfig.Kafka == nil{
+		return ""
+	}
+	return CurrentConfig.Kafka.ServerUrl
 }

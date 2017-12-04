@@ -1,4 +1,8 @@
 
+#### version 1.2
+1、新增kafka支持
+2、调整mongodb配置项ServerIP为ServerUrl
+2、2017-12-04 13:00
 
 #### version 1.1
 1、调整Counter服务为异步过程

@@ -7,6 +7,7 @@ import (
 const (
 	Target_MongoDB = "mongodb"
 	Target_Http    = "http"
+	Target_Kafka    = "kafka"
 )
 
 //代理配置信息
@@ -15,6 +16,7 @@ type AppConfig struct {
 	Log     Log        `xml:"log"`
 	Redis   Redis      `xml:"redis"`
 	MongoDB MongoDB    `xml:"mongodb"`
+	Kafka 	*Kafka    `xml:"kafka"`
 	Tasks   []TaskInfo `xml:"tasks>task"`
 	TaskMap map[string]*TaskInfo
 }
@@ -26,8 +28,13 @@ type Redis struct {
 
 //MongodDB配置
 type MongoDB struct {
-	ServerIP string `xml:"serverip,attr"`
+	ServerUrl string `xml:"serverurl,attr"`
 	DBName   string `xml:"dbname,attr"`
+}
+
+//kafka配置
+type Kafka struct {
+	ServerUrl string `xml:"serverurl,attr"`
 }
 
 //log配置

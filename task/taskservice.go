@@ -33,6 +33,8 @@ func LoadTasks(service *task.TaskService) {
 			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.MongoDBHandler, v)
 		}else if v.TargetType == config.Target_Http{
 			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.HttpHandler, v)
+		}else if v.TargetType == config.Target_Kafka{
+			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.KafkaHandler, v)
 		}
 	}
 
