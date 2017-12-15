@@ -1,8 +1,13 @@
 
+#### Version 1.3
+1、新增component包
+2、新增kafka组件代码，单例模式
+3、2017-12-15 10:00
+
 #### version 1.2
 1、新增kafka支持
 2、调整mongodb配置项ServerIP为ServerUrl
-2、2017-12-04 13:00
+3、2017-12-04 13:00
 
 #### version 1.1
 1、调整Counter服务为异步过程

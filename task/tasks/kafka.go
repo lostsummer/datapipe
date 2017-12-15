@@ -7,7 +7,7 @@ import (
 	"github.com/devfeel/dottask"
 	"TechPlat/datapipe/trigger"
 	"TechPlat/datapipe/counter"
-	"TechPlat/datapipe/util/kafka"
+	"TechPlat/datapipe/component/kafka"
 	"strconv"
 )
 
