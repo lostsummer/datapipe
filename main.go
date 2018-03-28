@@ -6,15 +6,16 @@ package main
 
 import (
 	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/core/exception"
+	"TechPlat/datapipe/counter"
+	"TechPlat/datapipe/httpserver"
+	"TechPlat/datapipe/task"
 	"TechPlat/datapipe/util/common"
 	"TechPlat/datapipe/util/log"
-	"TechPlat/datapipe/task"
 	"flag"
 	"os"
 	"os/signal"
 	"syscall"
-	"TechPlat/datapipe/core/exception"
-	"TechPlat/datapipe/counter"
 )
 
 var (
@@ -56,7 +57,12 @@ func main() {
 	counter.StartCounter()
 
 	//阻塞主线程，同时等待操作系统信号
-	waitSignal()
+	go waitSignal()
+
+	err := httpserver.StartServer()
+	if err != nil {
+		innerLogger.Warn("HttpServer.StartServer 失败" + err.Error())
+	}
 }
 
 func waitSignal() {
@@ -75,7 +81,12 @@ func waitSignal() {
 			config.InitConfig(configFile)
 			//重启启动Task集合
 			task.ReStartTaskService()
+			err := httpserver.RestartServer()
+			if err != nil {
+				innerLogger.Warn("HttpServer.RestartServer 失败" + err.Error())
+			}
 			innerLogger.Info("main::waitSignal reload config end")
+
 		default:
 			return
 		}

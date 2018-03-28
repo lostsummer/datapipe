@@ -1,0 +1,248 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "cFe+2GQPsARnm+5tr75DuHgYhRE=",
+			"path": "github.com/Shopify/sarama",
+			"revision": "5e8fd95863bd4a894fcd29225547d56967f189ad",
+			"revisionTime": "2018-03-16T13:53:37Z"
+		},
+		{
+			"checksumSHA1": "CSPbwbyzqA6sfORicn4HFtIhF/c=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "8991bc29aa16c548c550c7ff78260e27b9ab7c73",
+			"revisionTime": "2018-02-21T22:46:20Z"
+		},
+		{
+			"checksumSHA1": "2RVMP/nMMcB+3HHS2Yrns142zTo=",
+			"path": "github.com/devfeel/dottask",
+			"revision": "b9978fdf46508ad3196aa8ff134d363485200fea",
+			"revisionTime": "2018-03-13T06:51:33Z"
+		},
+		{
+			"checksumSHA1": "PZ1eKCzupMcqBWwZeAZpccK/Nw0=",
+			"path": "github.com/devfeel/dotweb",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "Em8VkwojgqQI+yZ/Pdt7R5TDTv0=",
+			"path": "github.com/devfeel/dotweb/cache",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "MRCFkFHfkP8XtTUZDgZDm9+8vEg=",
+			"path": "github.com/devfeel/dotweb/cache/redis",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "sdHL/8gzwcfJREzhU5TQj7ezSjA=",
+			"path": "github.com/devfeel/dotweb/cache/runtime",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "7iZIdjV+8rykZIwswd6pzvzAVzQ=",
+			"path": "github.com/devfeel/dotweb/config",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "QfcHrowqHzh5VqilBCIeywLnLps=",
+			"path": "github.com/devfeel/dotweb/const",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "b06uvylUZUdS90HcdNGuqXvUimM=",
+			"path": "github.com/devfeel/dotweb/core",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "m9XyWg5b4rPSVmBswx1HMSNvBUk=",
+			"path": "github.com/devfeel/dotweb/feature",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "9QzR/rOkdznvAPzHUtA0sXAfn0M=",
+			"path": "github.com/devfeel/dotweb/framework/convert",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "wMYMP9Did0dhZ/H2qYF4zd9HKTU=",
+			"path": "github.com/devfeel/dotweb/framework/crypto",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "2CVouDqnXgbe2sDR5dbqtWvEMks=",
+			"path": "github.com/devfeel/dotweb/framework/crypto/uuid",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "+NyRrkY0uF7B931OjKrOfLwlKto=",
+			"path": "github.com/devfeel/dotweb/framework/encodes/gob",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "ww6kVQa9bXfMGaUkRWSbhah/yYg=",
+			"path": "github.com/devfeel/dotweb/framework/exception",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "ADaQehR4v7eLP3XsSQYOqJgpUUI=",
+			"path": "github.com/devfeel/dotweb/framework/file",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "QYp5cPkGE4FbB2fsWvkUB2A8V68=",
+			"path": "github.com/devfeel/dotweb/framework/json",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "SoHu6kb/aow4+5WyNJyB+iiEDW4=",
+			"path": "github.com/devfeel/dotweb/framework/redis",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "CqX3EoB07oJn+c1iwz6JkYOTa0Q=",
+			"path": "github.com/devfeel/dotweb/framework/reflects",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "6ZV+MfXZmAwMMVGOzR4TAJeGxT8=",
+			"path": "github.com/devfeel/dotweb/logger",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "iSoMB6ba4pRG/m0ZsXDSD7JsHdY=",
+			"path": "github.com/devfeel/dotweb/servers",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "AvMu6dnMNanonAjMvvV32M1cOZY=",
+			"path": "github.com/devfeel/dotweb/session",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "y2Kh4iPlgCPXSGTCcFpzePYdzzg=",
+			"path": "github.com/eapache/go-resiliency/breaker",
+			"revision": "ea41b0fad31007accc7f806884dcdf3da98b79ce",
+			"revisionTime": "2018-03-26T13:24:23Z"
+		},
+		{
+			"checksumSHA1": "WHl96RVZlOOdF4Lb1OOadMpw8ls=",
+			"path": "github.com/eapache/go-xerial-snappy",
+			"revision": "bb955e01b9346ac19dc29eb16586c90ded99a98c",
+			"revisionTime": "2016-06-09T14:24:08Z"
+		},
+		{
+			"checksumSHA1": "SJhV59StVXLFvLU0l9s0d00nV10=",
+			"path": "github.com/eapache/queue",
+			"revision": "093482f3f8ce946c05bcba64badd2c82369e084d",
+			"revisionTime": "2018-02-27T14:14:24Z"
+		},
+		{
+			"checksumSHA1": "2UmMbNHc8FBr98mJFN1k8ISOIHk=",
+			"path": "github.com/garyburd/redigo/internal",
+			"revision": "e8e59ed1cd89662b75af5d1109e39e5dc148cc00",
+			"revisionTime": "2018-03-20T13:09:17Z"
+		},
+		{
+			"checksumSHA1": "3kM5bMyfqvdCfgQdOb01CR1aA74=",
+			"path": "github.com/garyburd/redigo/redis",
+			"revision": "e8e59ed1cd89662b75af5d1109e39e5dc148cc00",
+			"revisionTime": "2018-03-20T13:09:17Z"
+		},
+		{
+			"checksumSHA1": "p/8vSviYF91gFflhrt5vkyksroo=",
+			"path": "github.com/golang/snappy",
+			"revision": "553a641470496b2327abcac10b36396bd98e45c9",
+			"revisionTime": "2017-02-15T23:32:05Z"
+		},
+		{
+			"checksumSHA1": "xKzx54LbkghuMauevGWevn5ip3w=",
+			"path": "github.com/pierrec/lz4",
+			"revision": "ed8d4cc3b461464e69798080a0092bd028910298",
+			"revisionTime": "2018-01-13T15:17:03Z"
+		},
+		{
+			"checksumSHA1": "zPWRjzsPeXCoqmidIcJtHbvrvRs=",
+			"path": "github.com/pierrec/xxHash/xxHash32",
+			"revision": "a0006b13c722f7f12368c00a3d3c2ae8a999a0c6",
+			"revisionTime": "2017-07-14T08:24:55Z"
+		},
+		{
+			"checksumSHA1": "ljd3FhYRJ91cLZz3wsH9BQQ2JbA=",
+			"path": "github.com/pkg/errors",
+			"revision": "816c9085562cd7ee03e7f8188a1cfd942858cded",
+			"revisionTime": "2018-03-11T21:45:15Z"
+		},
+		{
+			"checksumSHA1": "oY/QEEFSa+kRKlgeIIAhCOYbnrE=",
+			"path": "github.com/rcrowley/go-metrics",
+			"revision": "8732c616f52954686704c8645fe1a9d59e9df7c1",
+			"revisionTime": "2018-01-25T23:19:41Z"
+		},
+		{
+			"checksumSHA1": "7EZyXN0EmZLgGxZxK01IJua4c8o=",
+			"origin": "github.com/devfeel/dotweb/vendor/golang.org/x/net/websocket",
+			"path": "golang.org/x/net/websocket",
+			"revision": "682db695447c8523edf6864bee4ce877f5259ed4",
+			"revisionTime": "2018-05-10T08:10:05Z"
+		},
+		{
+			"checksumSHA1": "1D8GzeoFGUs5FZOoyC2DpQg8c5Y=",
+			"path": "gopkg.in/mgo.v2",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "YsB2DChSV9HxdzHaKATllAUKWSI=",
+			"path": "gopkg.in/mgo.v2/bson",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "XQsrqoNT1U0KzLxOFcAZVvqhLfk=",
+			"path": "gopkg.in/mgo.v2/internal/json",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "LEvMCnprte47qdAxWvQ/zRxVF1U=",
+			"path": "gopkg.in/mgo.v2/internal/sasl",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "+1WDRPaOphSCmRMxVPIPBV4aubc=",
+			"path": "gopkg.in/mgo.v2/internal/scram",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "HmUAWd1Jm25cGH4Pyf3Zgp2RhkI=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "86f5ed62f8a0ee96bd888d2efdfd6d4fb100a4eb",
+			"revisionTime": "2018-03-26T05:07:29Z"
+		}
+	],
+	"rootPath": "TechPlat/datapipe"
+}
