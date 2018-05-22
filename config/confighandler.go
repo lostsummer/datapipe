@@ -49,6 +49,12 @@ func InitConfig(configFile string) *AppConfig {
 		innerLogger.Info("AppConfig::InitConfig Load Task => " + v.TaskID + "," + v.TargetType + "," + v.TargetValue + "," + v.TriggerServer + "," + v.TriggerQueue)
 	}
 
+	result.ImporterMap = make(map[string]*ImporterInfo)
+	for k, v := range result.Importers {
+		result.ImporterMap[v.ID] = &result.Importers[k]
+		innerLogger.Info("AppConfig::InitConfig Load Importer => " + v.ID + "," + v.ToServer + "," + v.ToQueue)
+	}
+
 	CurrentConfig = &result
 
 	innerLogger.Info("AppConfig::InitConfig 配置文件[" + configFile + "]完成")
@@ -56,10 +62,9 @@ func InitConfig(configFile string) *AppConfig {
 	return CurrentConfig
 }
 
-
 // GetKafkaServerUrl return kafka server info
-func GetKafkaServerUrl() string{
-	if CurrentConfig == nil{
+func GetKafkaServerUrl() string {
+	if CurrentConfig == nil {
 		return ""
 	}
 	return CurrentConfig.Kafka.ServerUrl
