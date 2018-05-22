@@ -23,6 +23,7 @@ const (
 	timeLayout   = "2006-01-02 03:04:05"
 	gidCookieKey = "em_tongji_cookie_globalid"
 	fvtCookieKey = "em_tongji_cookie_firstvisittime"
+	postDataKey  = "ActionData"
 )
 
 var (
@@ -111,7 +112,14 @@ func getClientIP(ctx dotweb.Context) string {
 
 // pushQueueData push data to redis queue
 func pushQueueData(importerConf *config.ImporterInfo, val string) (int64, error) {
-	redisClient := redisutil.GetRedisClient(importerConf.ToServer)
+	server := importerConf.ToServer
+	queue := importerConf.ToQueue
+	return pushQueueDataToSQ(server, queue, val)
+}
+
+// args expose server and queue
+func pushQueueDataToSQ(server, queue, val string) (int64, error) {
+	redisClient := redisutil.GetRedisClient(server)
 	if redisClient == nil {
 		return -1, GetRedisError
 	}
@@ -122,5 +130,5 @@ func pushQueueData(importerConf *config.ImporterInfo, val string) (int64, error)
 			}
 		}
 	}()
-	return redisClient.LPush(importerConf.ToQueue, val)
+	return redisClient.LPush(queue, val)
 }
