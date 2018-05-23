@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"TechPlat/datapipe/config"
+	"net/http"
 
 	"github.com/devfeel/dotweb"
 )
@@ -22,12 +23,15 @@ func StartServer() error {
 	InitRoute(srv)
 	port := config.CurrentConfig.HttpServer.HttpPort
 	err := srv.StartServer(port)
-	return err
+	if err == http.ErrServerClosed {
+		return nil
+	} else {
+		return err
+	}
 }
 
-func RestartServer() error {
+func RestartServer() {
 	if srv != nil {
 		srv.Close()
 	}
-	return StartServer()
 }

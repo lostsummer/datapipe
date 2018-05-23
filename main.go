@@ -56,12 +56,33 @@ func main() {
 	//启动计数器服务
 	counter.StartCounter()
 
-	//阻塞主线程，同时等待操作系统信号
+	//异步处理操作系统信号
 	go waitSignal()
 
-	err := httpserver.StartServer()
-	if err != nil {
-		innerLogger.Warn("HttpServer.StartServer 失败" + err.Error())
+	srvStatus := make(chan string)
+	runServer := func() {
+		err := httpserver.StartServer()
+		if err != nil {
+			innerLogger.Error("HttpServer.StartServer error: " + err.Error())
+			srvStatus <- "end"
+		} else {
+			srvStatus <- "restart"
+		}
+	}
+
+	//开启httpserver
+	go runServer()
+
+	//httpserver简单控制
+	for s := range srvStatus {
+		switch s {
+		case "end":
+			return
+		case "restart":
+			go runServer()
+		default:
+			return
+		}
 	}
 }
 
@@ -81,6 +102,8 @@ func waitSignal() {
 			config.InitConfig(configFile)
 			//重启启动Task集合
 			task.ReStartTaskService()
+			//使httpserver.StartServer返回nil
+			httpserver.RestartServer()
 			innerLogger.Info("main::waitSignal reload config end")
 
 		default:
