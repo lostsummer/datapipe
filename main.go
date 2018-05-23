@@ -81,10 +81,6 @@ func waitSignal() {
 			config.InitConfig(configFile)
 			//重启启动Task集合
 			task.ReStartTaskService()
-			err := httpserver.RestartServer()
-			if err != nil {
-				innerLogger.Warn("HttpServer.RestartServer 失败" + err.Error())
-			}
 			innerLogger.Info("main::waitSignal reload config end")
 
 		default:
