@@ -41,7 +41,7 @@ func LiveDuration(ctx dotweb.Context) error {
 			"] classid=[" + params["classid"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("LiveDuration")
+	importerConf, err := getImporterConf("LiveDuration")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::LiveDuration " + err.Error())

@@ -40,7 +40,7 @@ func FrontEndLog(ctx dotweb.Context) error {
 		respstr = respFailed
 		return nil
 	}
-	importerConf, err := getImporterInfo("FrontEndLog")
+	importerConf, err := getImporterConf("FrontEndLog")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::FrontEndLog " + err.Error())

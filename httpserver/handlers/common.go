@@ -40,7 +40,7 @@ func init() {
 	innerLogger = logger.GetInnerLogger()
 }
 
-func getImporterInfo(id string) (*config.ImporterInfo, error) {
+func getImporterConf(id string) (*config.Importer, error) {
 	impMap := config.CurrentConfig.ImporterMap
 	importerInfo, exist := impMap[id]
 	if exist {
@@ -111,8 +111,8 @@ func getClientIP(ctx dotweb.Context) string {
 }
 
 // pushQueueData push data to redis queue
-func pushQueueData(importerConf *config.ImporterInfo, val string) (int64, error) {
-	server := importerConf.ToServer
+func pushQueueData(importerConf *config.Importer, val string) (int64, error) {
+	server := importerConf.ServerUrl
 	queue := importerConf.ToQueue
 	return pushQueueDataToSQ(server, queue, val)
 }

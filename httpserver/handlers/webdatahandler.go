@@ -45,7 +45,7 @@ func WebData(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::WebData app=[" + params["app"] + "] datakey=[" + params["datakey"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("WebData")
+	importerConf, err := getImporterConf("WebData")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::WebData " + err.Error())

@@ -28,7 +28,7 @@ func UserLog(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::UserLog appid=[" + params["appid"] + "] logtype=[" + params["logtype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("UserLog")
+	importerConf, err := getImporterConf("UserLog")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::UserLog " + err.Error())

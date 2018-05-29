@@ -49,10 +49,14 @@ func InitConfig(configFile string) *AppConfig {
 		innerLogger.Info("AppConfig::InitConfig Load Task => " + v.TaskID + "," + v.TargetType + "," + v.TargetValue + "," + v.TriggerServer + "," + v.TriggerQueue)
 	}
 
-	result.ImporterMap = make(map[string]*ImporterInfo)
-	for k, v := range result.Importers {
-		result.ImporterMap[v.ID] = &result.Importers[k]
-		innerLogger.Info("AppConfig::InitConfig Load Importer => " + v.ID + "," + v.ToServer + "," + v.ToQueue)
+	result.ImporterMap = make(map[string]*Importer)
+	if result.HttpServer.Enable {
+		for k, v := range result.HttpServer.Importers {
+			if v.Enable {
+				result.ImporterMap[v.Name] = &result.HttpServer.Importers[k]
+				innerLogger.Info("AppConfig::InitConfig Load Importer => " + v.Name + "," + v.ServerType + "," + v.ServerUrl + "," + v.ToQueue)
+			}
+		}
 	}
 
 	CurrentConfig = &result

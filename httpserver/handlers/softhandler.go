@@ -41,7 +41,7 @@ func Soft(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::Soft app=[" + params["app"] + "] optype=[" + params["optype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("Soft")
+	importerConf, err := getImporterConf("Soft")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::Soft " + err.Error())
