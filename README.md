@@ -78,17 +78,3 @@ httpserver自身运行的配置文件在单独的 dotweb.conf 中
 </config>　
 
 ```
-
-### 不完善
-
-- __服务优雅重启__
-
-  目前`kill -HUP <datapipe pid>`只能重新加载TaskServic， ~~httpserver 的重启没有在信号处理函数中实现~~(已实现了一个不优雅重启)，因为做到优雅重启有许多框架以外基础工作要做，可参考：
-
-  https://segmentfault.com/a/1190000004445975
-
-- __可配置项提取__
-
-  httpserver log 开关等
-
-

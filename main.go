@@ -16,8 +16,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"git.emoney.cn/softweb/roboadvisor/task/server"
 )
 
 var (
