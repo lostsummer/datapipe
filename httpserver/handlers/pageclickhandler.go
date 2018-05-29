@@ -44,7 +44,7 @@ func PageClick(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::PageClick app=[" + params["app"] + "] clickkey=[" + params["clickkey"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("PageClick")
+	importerConf, err := getImporterConf("PageClick")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::PageClick " + err.Error())

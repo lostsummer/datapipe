@@ -28,7 +28,7 @@ func PayLog(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::PayLog appid=[" + params["appid"] + "] logtype=[" + params["logtype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("PayLog")
+	importerConf, err := getImporterConf("PayLog")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::PayLog " + err.Error())

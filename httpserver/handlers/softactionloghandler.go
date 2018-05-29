@@ -66,7 +66,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 		respstr = respFailed
 		return nil
 	}
-	importerConf, err := getImporterInfo("SoftActionLog")
+	importerConf, err := getImporterConf("SoftActionLog")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::SoftActionLog " + err.Error())
@@ -99,7 +99,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 			var qlen int64
 			var err error
 			if isFreeUserPid(dataMap["pid"]) {
-				qlen, err = pushQueueDataToSQ(importerConf.ToServer, freeuserQueue, string(data))
+				qlen, err = pushQueueDataToSQ(importerConf.ServerUrl, freeuserQueue, string(data))
 			} else {
 				qlen, err = pushQueueData(importerConf, string(data))
 			}

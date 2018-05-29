@@ -28,7 +28,7 @@ func AppData(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::AppData appid=[" + params["appid"] + "] logtype=[" + params["logtype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("AppData")
+	importerConf, err := getImporterConf("AppData")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::AppData " + err.Error())

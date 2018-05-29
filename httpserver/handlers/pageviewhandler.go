@@ -44,7 +44,7 @@ func PageView(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::PageView code=[" + params["code"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterInfo("PageView")
+	importerConf, err := getImporterConf("PageView")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::PageView " + err.Error())

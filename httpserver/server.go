@@ -2,36 +2,88 @@ package httpserver
 
 import (
 	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/util/log"
 	"net/http"
 
 	"github.com/devfeel/dotweb"
+	dotconfig "github.com/devfeel/dotweb/config"
 )
 
-var srv *(dotweb.DotWeb) = nil
+const (
+	RunEnv_Flag       = "RunEnv"
+	RunEnv_Develop    = "develop"
+	RunEnv_Test       = "test"
+	RunEnv_Production = "production"
+)
 
-func StartServer() error {
-	//初始化DotServer
-	srv = dotweb.New()
+const (
+	msgSrvNotConfig = "notconfig"
+	msgSrvClosed    = "closed"
+	msgSrvError     = "error"
+)
 
-	//设置日志目录
+var (
+	RunEnv     string
+	ConfigPath string
+)
 
-	srv.SetLogPath(config.CurrentConfig.Log.FilePath)
-	srv.SetEnabledLog(true)
-	srv.HttpServer.SetEnabledGzip(true)
+var (
+	innerLogger *logger.InnerLogger
+	srv         *(dotweb.DotWeb)
+	wait        chan int
+)
 
-	//设置路由
-	InitRoute(srv)
-	port := config.CurrentConfig.HttpServer.HttpPort
-	err := srv.StartServer(port)
-	if err == http.ErrServerClosed {
-		return nil
-	} else {
-		return err
+func init() {
+	innerLogger = logger.GetInnerLogger()
+	srv = nil
+	wait = make(chan int)
+}
+
+func StartServer() {
+	srvStatus := make(chan string)
+	runSrv := func() {
+		if config.CurrentConfig.HttpServer.Enable {
+			srvConfig := dotconfig.MustInitConfig(ConfigPath + "/dotweb.conf")
+			srv = dotweb.ClassicWithConf(srvConfig)
+			if RunEnv == RunEnv_Develop {
+				srv.SetDevelopmentMode()
+			}
+			InitRoute(srv)
+			srv.HttpServer.SetEnabledSession(true)
+		} else {
+			srv = nil
+			srvStatus <- msgSrvNotConfig
+			return
+		}
+		innerLogger.Debug("httpserver.StartServer => ")
+		if err := srv.Start(); err == http.ErrServerClosed {
+			srvStatus <- msgSrvClosed
+		} else {
+			srvStatus <- msgSrvError
+			innerLogger.Error("httpserver.StartServer " + err.Error())
+		}
+	}
+
+	go runSrv()
+
+	for s := range srvStatus {
+		switch s {
+		case msgSrvClosed:
+			go runSrv()
+		case msgSrvError:
+			return
+		case msgSrvNotConfig:
+			<-wait
+			go runSrv()
+		}
 	}
 }
 
 func RestartServer() {
-	if srv != nil {
+	innerLogger.Debug("httpserver.RestartServer")
+	if srv == nil { //上一次启动没有配置打开
+		wait <- 1
+	} else { //已经打开
 		srv.Close()
 	}
 }

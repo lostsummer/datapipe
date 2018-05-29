@@ -16,15 +16,20 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"git.emoney.cn/softweb/roboadvisor/task/server"
 )
 
 var (
 	innerLogger *logger.InnerLogger
+	configPath  string
 	configFile  string
+	basePath    string
 )
 
 func init() {
 	innerLogger = logger.GetInnerLogger()
+	basePath = common.GetCurrentDirectory()
 }
 
 func main() {
@@ -36,13 +41,9 @@ func main() {
 		}
 	}()
 
-	currentBaseDir := common.GetCurrentDirectory()
-	flag.StringVar(&configFile, "config", "", "配置文件路径")
-	if configFile == "" {
-		configFile = currentBaseDir + "/app.conf"
-	}
+	parseFlag()
 	//启动内部日志服务
-	logger.StartInnerLogHandler(currentBaseDir)
+	logger.StartInnerLogHandler(basePath)
 
 	//加载xml配置文件
 	config := config.InitConfig(configFile)
@@ -57,54 +58,50 @@ func main() {
 	counter.StartCounter()
 
 	//异步处理操作系统信号
-	go waitSignal()
+	go listenSignal()
 
-	srvStatus := make(chan string)
-	runServer := func() {
-		err := httpserver.StartServer()
-		if err != nil {
-			innerLogger.Error("HttpServer.StartServer error: " + err.Error())
-			srvStatus <- "end"
-		} else {
-			srvStatus <- "restart"
-		}
-	}
+	//根据配置启动 http server, 阻塞
+	httpserver.StartServer()
 
-	//开启httpserver
-	go runServer()
-
-	//httpserver简单控制
-	for s := range srvStatus {
-		switch s {
-		case "end":
-			return
-		case "restart":
-			go runServer()
-		default:
-			return
-		}
-	}
 }
 
-func waitSignal() {
+func parseFlag() {
+	var runEnv string
+	if runEnv = os.Getenv(server.RunEnv_Flag); runEnv == "" {
+		runEnv = httpserver.RunEnv_Develop
+	}
+
+	configPath = basePath + "/conf/" + runEnv
+	httpserver.RunEnv = runEnv
+	httpserver.ConfigPath = configPath
+
+	//从命令行参数读取配置路径
+	flag.StringVar(&configFile, "config", "", "配置文件路径")
+	if configFile == "" {
+		configFile = configPath + "/app.conf"
+	}
+
+}
+
+func listenSignal() {
 	c := make(chan os.Signal, 1)
 	//syscall.SIGSTOP
 	signal.Notify(c, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
 	for {
 		s := <-c
-		innerLogger.Info("main::waitSignal [" + s.String() + "]")
+		innerLogger.Info("main::listenSignal [" + s.String() + "]")
 		switch s {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
 			return
 		case syscall.SIGHUP: //配置重载
-			innerLogger.Info("main::waitSignal reload config begin...")
+			innerLogger.Info("main::listenSignal reload config begin...")
 			//重新加载xml配置文件
 			config.InitConfig(configFile)
 			//重启启动Task集合
 			task.ReStartTaskService()
 			//使httpserver.StartServer返回nil
 			httpserver.RestartServer()
-			innerLogger.Info("main::waitSignal reload config end")
+			innerLogger.Info("main::listenSignal reload config end")
 
 		default:
 			return
