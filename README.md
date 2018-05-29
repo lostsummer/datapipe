@@ -42,25 +42,42 @@ http server 使用 dotweb 框架
 新增了 httpserver、importers
 
 ```xml
-    <httpserver httpport="80"/>
-    <importers>
-        <importer id="PageClick" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:PageClickStringQueue"/>
-        <importer id="PageView" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:PageViewStringQueue"/>
-        <importer id="WebData" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:WebDataStringQueue"/>
-        <importer id="AppData" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:AppDataStringQueue"/>
-        <importer id="PayLog" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:PayLogStringQueue"/>
-        <importer id="UserLog" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:UserLogStringQueue"/>
-        <importer id="Soft" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:SoftLogStringQueue"/>
-        <importer id="SoftActionLog" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:SoftActionLogJsonQueue"/>
-        <importer id="FrontEndLog" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:FrontEndLogJsonQueue"/>
-        <importer id="LiveDruation" toserver="192.168.8.175:6379" toqueue="EMoney.Tongji:LiveDurationStringQueue"/>
-    </importers>
-
+    <httpserver enable="true">
+        <importer enable="true" name="PageClick" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:PageClickStringQueue"/>
+        <importer enable="true" name="PageView" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:PageViewStringQueue"/>
+        <importer enable="true" name="WebData" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:WebDataStringQueue"/>
+        <importer enable="true" name="AppData" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:AppDataStringQueue"/>
+        <importer enable="true" name="PayLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:PayLogStringQueue"/>
+        <importer enable="true" name="UserLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:UserLogStringQueue"/>
+        <importer enable="true" name="Soft" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:SoftLogStringQueue"/>
+        <importer enable="true" name="SoftActionLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:SoftActionLogJsonQueue"/>
+        <importer enable="true" name="FrontEndLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:FrontEndLogJsonQueue"/>
+        <importer enable="true" name="LiveDruation" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:LiveDurationStringQueue"/>
+    </httpserver>
 ```
 
-httpserver目前只配置的server端口
+httpserver enable 属性是指定是否开启httpserver的开关
+httpserver 下属 importer 对应每个 http route handler，配置了对应的写入redis地址和对列key, 也有单独的加载开关
 
-importers下属importer对应每个http route handler，配置了对应的写入redis地址和对列key
+httpserver自身运行的配置文件在单独的 dotweb.conf 中
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+<app logpath="logs/" enabledlog="true" runmode="development"/>
+<server isrun="true" port="8080" />
+<appset>
+    <set key="set1" value="1" />
+</appset>
+<middlewares>
+</middlewares>
+<routers>
+</routers>
+<groups>
+</groups>
+</config>　
+
+```
 
 ### 不完善
 
