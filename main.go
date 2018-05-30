@@ -65,7 +65,7 @@ func main() {
 
 func parseFlag() {
 	var runEnv string
-	if runEnv = os.Getenv(server.RunEnv_Flag); runEnv == "" {
+	if runEnv = os.Getenv(httpserver.RunEnv_Flag); runEnv == "" {
 		runEnv = httpserver.RunEnv_Develop
 	}
 

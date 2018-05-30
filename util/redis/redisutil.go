@@ -30,7 +30,7 @@ func init() {
 func newPool(redisIP string) *redis.Pool {
 	return &redis.Pool{
 		MaxIdle:   5,
-		MaxActive: 40, // max number of connections
+		MaxActive: 20, // max number of connections
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", redisIP)
 			if err != nil {
@@ -43,12 +43,18 @@ func newPool(redisIP string) *redis.Pool {
 
 //获取指定Address的RedisClient
 func GetRedisClient(address string) *RedisClient {
-	mapMutex.Lock()
-	defer mapMutex.Unlock()
+	mapMutex.RLock()
 	redis, mok := redisMap[address]
+	mapMutex.RUnlock()
 	if !mok {
-		redis = &RedisClient{Address: address, pool: newPool(address)}
-		redisMap[address] = redis
+		mapMutex.Lock()
+		if r, ok := redisMap[address]; ok {
+			redis = r
+		} else {
+			redis = &RedisClient{Address: address, pool: newPool(address)}
+			redisMap[address] = redis
+		}
+		mapMutex.Unlock()
 	}
 	return redis
 }
