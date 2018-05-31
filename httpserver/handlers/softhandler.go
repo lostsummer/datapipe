@@ -14,7 +14,7 @@ var softJsonKeys = [...]string{
 	"OPType",
 	"Flag",
 	"Remark",
-	"PageUrl",
+	//"PageUrl",
 }
 
 var softUrlKeys = [...]string{
@@ -23,7 +23,7 @@ var softUrlKeys = [...]string{
 	"optype",
 	"flag",
 	"remark",
-	"pageurl",
+	//"pageurl",
 }
 
 func Soft(ctx dotweb.Context) error {
@@ -51,7 +51,8 @@ func Soft(ctx dotweb.Context) error {
 	for _, k := range softJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
 	}
-	dataMap["UserAgent"] = ctx.Request().UserAgent()
+	dataMap["PageUrl"] = getFullUrl(ctx)
+	dataMap["UserAgent"] = getUserAgent(ctx)
 	dataMap["GlobalID"] = getGlobalID(ctx)
 	dataMap["FirstVisitTime"] = getFirstVistTime(ctx)
 	dataMap["ClientIP"] = getClientIP(ctx)

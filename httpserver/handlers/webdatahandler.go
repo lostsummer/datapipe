@@ -58,7 +58,7 @@ func WebData(ctx dotweb.Context) error {
 	if dataMap["ClientIP"] == "" {
 		dataMap["ClientIP"] = getClientIP(ctx)
 	}
-	dataMap["UserAgent"] = ctx.Request().UserAgent()
+	dataMap["UserAgent"] = getUserAgent(ctx)
 	dataMap["GlobalID"] = getGlobalID(ctx)
 	dataMap["VisitTime"] = getNowFormatTime()
 	if data, err := json.Marshal(dataMap); err != nil {

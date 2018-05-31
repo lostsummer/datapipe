@@ -8,7 +8,7 @@ import (
 	"github.com/devfeel/dotweb"
 )
 
-var pageClickJsonKey = [...]string{
+var pageClickJsonKeys = [...]string{
 	"App",
 	"Module",
 	"ClickKey",
@@ -51,10 +51,10 @@ func PageClick(ctx dotweb.Context) error {
 		return nil
 	}
 	dataMap := make(map[string]string)
-	for _, k := range pageClickJsonKey {
+	for _, k := range pageClickJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
 	}
-	dataMap["UserAgent"] = ctx.Request().UserAgent()
+	dataMap["UserAgent"] = getUserAgent(ctx)
 	dataMap["GlobalID"] = getGlobalID(ctx)
 	dataMap["FirstVisitTime"] = getFirstVistTime(ctx)
 	dataMap["ClientIP"] = getClientIP(ctx)

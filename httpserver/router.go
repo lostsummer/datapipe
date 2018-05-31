@@ -29,16 +29,18 @@ func (this *routeInfo) bound(server *dotweb.DotWeb) {
 
 //importer_name : routeInfo
 var routeMap map[string]routeInfo = map[string]routeInfo{
-	"PageClick":     routeInfo{"GET", "/page/pageclick", handlers.PageClick},
-	"PageView":      routeInfo{"GET", "/page/pageview", handlers.PageView},
-	"WebData":       routeInfo{"GET", "/data/webdata", handlers.WebData},
-	"AppData":       routeInfo{"GET", "/data/appdata", handlers.AppData},
-	"PayLog":        routeInfo{"GET", "/paylog/paylog", handlers.PayLog},
-	"UserLog":       routeInfo{"GET", "/userlog/userlog", handlers.UserLog},
-	"Soft":          routeInfo{"GET", "/soft", handlers.Soft},
-	"SoftActionLog": routeInfo{"POST", "/soft/actionlog", handlers.SoftActionLog},
-	"FrontEndLog":   routeInfo{"POST", "/frontend/log", handlers.FrontEndLog},
-	"LiveDuration":  routeInfo{"GET", "/liveduration/data", handlers.LiveDuration},
+	"PageClick":     {"GET", "/page/pageclick", handlers.PageClick},
+	"PageView":      {"GET", "/page/pageview", handlers.PageView},
+	"ADView":        {"GET", "/page/adview", handlers.ADView},
+	"ADClick":       {"GET", "/page/adclick", handlers.ADClick},
+	"WebData":       {"GET", "/data/webdata", handlers.WebData},
+	"AppData":       {"POST", "/data/appdata", handlers.AppData},
+	"PayLog":        {"GET", "/paylog/paylog", handlers.PayLog},
+	"UserLog":       {"POST", "/userlog/userlog", handlers.UserLog},
+	"Soft":          {"GET", "/soft", handlers.Soft},
+	"SoftActionLog": {"POST", "/soft/actionlog", handlers.SoftActionLog},
+	"FrontEndLog":   {"POST", "/frontend/log", handlers.FrontEndLog},
+	"LiveDuration":  {"GET", "/liveduration/data", handlers.LiveDuration},
 }
 
 //根据importer配置路由初化

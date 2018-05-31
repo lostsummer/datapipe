@@ -54,7 +54,7 @@ func PageView(ctx dotweb.Context) error {
 	for _, k := range pageViewJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
 	}
-	dataMap["UserAgent"] = ctx.Request().UserAgent()
+	dataMap["UserAgent"] = getUserAgent(ctx)
 	dataMap["GlobalID"] = getGlobalID(ctx)
 	dataMap["FirstVisitTime"] = getFirstVistTime(ctx)
 	dataMap["ClientIP"] = getClientIP(ctx)

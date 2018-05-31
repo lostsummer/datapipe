@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"TechPlat/datapipe/config"
@@ -27,22 +28,52 @@ const (
 )
 
 var (
-	innerLogger *logger.InnerLogger
-)
-
-var (
 	NotConfigError = errors.New("not exists such config info")
 	LessParamError = errors.New("less param")
 	GetRedisError  = errors.New("get rediscli failed")
+	innerLogger    *logger.InnerLogger
+	agentOS        map[string]string = map[string]string{
+		"Windows CE":     "Windows CE",
+		"iPhone":         "iPhone",
+		"Android":        "Android",
+		"Windows NT 10":  "Windows 10",
+		"Windows NT 6.1": "Windows 7",
+		"Windows NT 6.0": "Windows Vista",
+		"Windows NT 5.2": "Windows 2003",
+		"Windows NT 5.1": "Windows XP",
+		"Windows NT 5.0": "Windows 2000",
+	}
+	agentBrowser map[string]string = map[string]string{
+		"GreenBrowser":    "GreenBrowser",
+		"NetCaptor":       "NetCaptor",
+		"TencentTraveler": "TencentTraveler",
+		"TheWorld":        "TheWorld",
+		"MAXTHON":         "MAXTHON",
+		"MyIE":            "MyIE",
+		"MSIE 10":         "IE 10",
+		"MSIE 9":          "IE 9",
+		"MSIE 8":          "IE 8",
+		"MSIE 7":          "IE 7",
+		"MSIE 6":          "IE 6",
+		"MSIE 5.5":        "IE 5.5",
+		"Netscape":        "Netscape",
+		"Chrome":          "Chrome",
+		"Firefox":         "Firefox",
+		"Safari":          "Safari",
+		"Opera":           "Opera",
+		"R4EA":            "R4EA",
+		"UP":              "UP",
+		"UCWEB":           "UCWEB",
+	}
 )
 
 func init() {
 	innerLogger = logger.GetInnerLogger()
 }
 
-func getImporterConf(id string) (*config.Importer, error) {
+func getImporterConf(name string) (*config.Importer, error) {
 	impMap := config.CurrentConfig.ImporterMap
-	importerInfo, exist := impMap[id]
+	importerInfo, exist := impMap[name]
 	if exist {
 		return importerInfo, nil
 	} else {
@@ -73,8 +104,8 @@ func getGlobalID(ctx dotweb.Context) string {
 		cookie = &http.Cookie{
 			Name:    gidCookieKey,
 			Value:   gid,
-			Expires: time.Now().Add(311040000),
-			Domain:  "tongji.emoney.cn",
+			Expires: time.Now().Add(311040000 * time.Second),
+			//Domain:  "tongji.emoney.cn",
 		}
 		ctx.SetCookie(cookie)
 	}
@@ -90,8 +121,8 @@ func getFirstVistTime(ctx dotweb.Context) string {
 		cookie = &http.Cookie{
 			Name:    fvtCookieKey,
 			Value:   fvt,
-			Expires: time.Now().Add(311040000),
-			Domain:  "tongji.emoney.cn",
+			Expires: time.Now().Add(311040000 * time.Second),
+			//Domain:  "tongji.emoney.cn",
 		}
 		ctx.SetCookie(cookie)
 	}
@@ -108,6 +139,32 @@ func getClientIP(ctx dotweb.Context) string {
 	} else {
 		return ip
 	}
+}
+
+func getFullUrl(ctx dotweb.Context) string {
+	return "http://" + ctx.Request().Host + ctx.Request().Url()
+}
+
+func getUserAgent(ctx dotweb.Context) string {
+	return ctx.Request().UserAgent()
+}
+
+func getAgentOS(ua string) string {
+	for k, v := range agentOS {
+		if strings.Contains(ua, k) {
+			return v
+		}
+	}
+	return "other"
+}
+
+func getAgentBrowser(ua string) string {
+	for k, v := range agentBrowser {
+		if strings.Contains(ua, k) {
+			return v
+		}
+	}
+	return "other"
 }
 
 // pushQueueData push data to redis queue
