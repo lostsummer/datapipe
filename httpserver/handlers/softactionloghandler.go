@@ -31,7 +31,7 @@ type ActionData struct {
 }
 
 const (
-	freeuserQueue = "EMoney.Tongji:SoftActionLogJsonQueue_FreeUser"
+	freeuserQueuePostfix = "_FreeUser"
 )
 
 var freeUserPids = [...]string{
@@ -60,7 +60,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	datajson := ctx.PostFormValue(postDataKey)
+	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
 		innerLogger.Error("HttpServer::SoftActionLog " + LessParamError.Error())
 		respstr = respFailed
@@ -99,7 +99,9 @@ func SoftActionLog(ctx dotweb.Context) error {
 			var qlen int64
 			var err error
 			if isFreeUserPid(dataMap["pid"]) {
-				qlen, err = pushQueueDataToSQ(importerConf.ServerUrl, freeuserQueue, string(data))
+				qlen, err = pushQueueDataToSQ(importerConf.ServerUrl,
+					importerConf.ToQueue+freeuserQueuePostfix,
+					string(data))
 			} else {
 				qlen, err = pushQueueData(importerConf, string(data))
 			}

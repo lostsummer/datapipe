@@ -34,7 +34,7 @@ func FrontEndLog(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	datajson := ctx.PostFormValue(postDataKey)
+	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
 		innerLogger.Error("HttpServer::FrontEndLog " + LessParamError.Error())
 		respstr = respFailed

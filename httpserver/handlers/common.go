@@ -19,12 +19,14 @@ import (
 )
 
 const (
-	respSucceed  = "1"
-	respFailed   = "-1"
-	timeLayout   = "2006-01-02 03:04:05"
-	gidCookieKey = "em_tongji_cookie_globalid"
-	fvtCookieKey = "em_tongji_cookie_firstvisittime"
-	postDataKey  = "ActionData"
+	respSucceed        = "1"
+	respFailed         = "-1"
+	timeLayout         = "2006-01-02 03:04:05"
+	gidCookieKey       = "em_tongji_cookie_globalid"
+	fvtCookieKey       = "em_tongji_cookie_firstvisittime"
+	cookieDomain       = "tongji.emoney.cn"
+	cookieValidSeconds = 311040000
+	postActionDataKey  = "ActionData"
 )
 
 var (
@@ -59,11 +61,11 @@ var (
 		"Netscape":        "Netscape",
 		"Chrome":          "Chrome",
 		"Firefox":         "Firefox",
-		"Safari":          "Safari",
-		"Opera":           "Opera",
-		"R4EA":            "R4EA",
-		"UP":              "UP",
-		"UCWEB":           "UCWEB",
+		//"Safari":         "Safari",       因为现在Chrome的UA中包含"Safari",所以对于Safari要特殊判断
+		"Opera": "Opera",
+		"R4EA":  "R4EA",
+		"UP":    "UP",
+		"UCWEB": "UCWEB",
 	}
 )
 
@@ -104,8 +106,8 @@ func getGlobalID(ctx dotweb.Context) string {
 		cookie = &http.Cookie{
 			Name:    gidCookieKey,
 			Value:   gid,
-			Expires: time.Now().Add(311040000 * time.Second),
-			//Domain:  "tongji.emoney.cn",
+			Expires: time.Now().Add(cookieValidSeconds * time.Second),
+			//Domain:  cookieDomain,
 		}
 		ctx.SetCookie(cookie)
 	}
@@ -121,8 +123,8 @@ func getFirstVistTime(ctx dotweb.Context) string {
 		cookie = &http.Cookie{
 			Name:    fvtCookieKey,
 			Value:   fvt,
-			Expires: time.Now().Add(311040000 * time.Second),
-			//Domain:  "tongji.emoney.cn",
+			Expires: time.Now().Add(cookieValidSeconds * time.Second),
+			//Domain:  cookieDomain,
 		}
 		ctx.SetCookie(cookie)
 	}
@@ -159,6 +161,9 @@ func getAgentOS(ua string) string {
 }
 
 func getAgentBrowser(ua string) string {
+	if strings.Contains(ua, "Safari") && !strings.Contains(ua, "Chrome") {
+		return "Safari"
+	}
 	for k, v := range agentBrowser {
 		if strings.Contains(ua, k) {
 			return v
@@ -169,8 +174,7 @@ func getAgentBrowser(ua string) string {
 
 // pushQueueData push data to redis queue
 func pushQueueData(importerConf *config.Importer, val string) (int64, error) {
-	server := importerConf.ServerUrl
-	queue := importerConf.ToQueue
+	server, queue := importerConf.ServerUrl, importerConf.ToQueue
 	return pushQueueDataToSQ(server, queue, val)
 }
 
