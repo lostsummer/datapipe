@@ -58,6 +58,7 @@ func PageClick(ctx dotweb.Context) error {
 	dataMap["GlobalID"] = getGlobalID(ctx)
 	dataMap["FirstVisitTime"] = getFirstVistTime(ctx)
 	dataMap["ClientIP"] = getClientIP(ctx)
+	dataMap["WriteTime"] = getNowFormatTime()
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::PageClick " + err.Error())

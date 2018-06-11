@@ -22,9 +22,11 @@ const (
 	respSucceed        = "1"
 	respFailed         = "-1"
 	timeLayout         = "2006-01-02 03:04:05"
-	gidCookieKey       = "em_tongji_cookie_globalid"
-	fvtCookieKey       = "em_tongji_cookie_firstvisittime"
-	cookieDomain       = "tongji.emoney.cn"
+	tjgidCookieName    = "em_tongji_cookie_globalid"
+	tjfvtCookieName    = "em_tongji_cookie_firstvisittime"
+	comgidCookieName   = "tongji_globalid"
+	tjCookieDomain     = "tongji.emoney.cn"
+	comCookieDomain    = "emoney.cn"
 	cookieValidSeconds = 311040000
 	postActionDataKey  = "ActionData"
 )
@@ -99,32 +101,39 @@ func createGuid() string {
 
 func getGlobalID(ctx dotweb.Context) string {
 	var gid string
-	if cookie, err := ctx.ReadCookie(gidCookieKey); err == nil {
+	if cookie, err := ctx.ReadCookie(tjgidCookieName); err == nil {
+		gid = cookie.Value
+	} else if cookie, err := ctx.ReadCookie(comgidCookieName); err == nil {
 		gid = cookie.Value
 	} else {
 		gid = createGuid()
-		cookie = &http.Cookie{
-			Name:    gidCookieKey,
-			Value:   gid,
-			Expires: time.Now().Add(cookieValidSeconds * time.Second),
-			//Domain:  cookieDomain,
-		}
-		ctx.SetCookie(cookie)
+		SetCookieNameValueDomain(ctx, tjgidCookieName, gid, tjCookieDomain)
+		SetCookieNameValueDomain(ctx, comgidCookieName, gid, comCookieDomain)
 	}
 	return gid
 }
 
+func SetCookieNameValueDomain(ctx dotweb.Context, name string, value string, domain string) {
+	cookie := &http.Cookie{
+		Name:    name,
+		Value:   value,
+		Expires: time.Now().Add(cookieValidSeconds * time.Second),
+		Domain:  domain,
+	}
+	ctx.SetCookie(cookie)
+}
+
 func getFirstVistTime(ctx dotweb.Context) string {
 	var fvt string
-	if cookie, err := ctx.ReadCookie(fvtCookieKey); err == nil {
+	if cookie, err := ctx.ReadCookie(tjfvtCookieName); err == nil {
 		fvt = cookie.Value
 	} else {
 		fvt = time.Now().Format(timeLayout)
 		cookie = &http.Cookie{
-			Name:    fvtCookieKey,
+			Name:    tjfvtCookieName,
 			Value:   fvt,
 			Expires: time.Now().Add(cookieValidSeconds * time.Second),
-			//Domain:  cookieDomain,
+			Domain:  tjCookieDomain,
 		}
 		ctx.SetCookie(cookie)
 	}

@@ -14,6 +14,7 @@ type FELog struct {
 	AppID   string `json:"appid"`
 	Module  string `json:"module"`
 	User_ID string `json:"user_id"`
+	MsgList string `json:"msglist"`
 	Level   string `json:"level"`
 	Target  string `json:"target"`
 	RowNum  string `json:"rowNum"`
