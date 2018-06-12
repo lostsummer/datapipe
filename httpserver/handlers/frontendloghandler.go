@@ -22,6 +22,7 @@ type FELog struct {
 	From    string `json:"from"`
 	Msg     string `json:"msg"`
 	Remark  string `json:"remark"`
+	Type    string `json:"type"`
 }
 
 type FEActionData struct {

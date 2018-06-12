@@ -96,7 +96,14 @@ func createGuid() string {
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
 		return ""
 	}
-	return getMd5String(base64.URLEncoding.EncodeToString(b))
+	md5str := getMd5String(base64.URLEncoding.EncodeToString(b))
+	return strings.Join([]string{
+		strings.ToUpper(md5str[0:8]),
+		strings.ToUpper(md5str[8:12]),
+		strings.ToUpper(md5str[12:16]),
+		strings.ToUpper(md5str[16:20]),
+		strings.ToUpper(md5str[20:32])}, "-")
+
 }
 
 func getGlobalID(ctx dotweb.Context) string {
