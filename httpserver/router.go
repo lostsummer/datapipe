@@ -39,6 +39,7 @@ var routeMap map[string]routeInfo = map[string]routeInfo{
 	"UserLog":       {"POST", "/userlog/userlog", handlers.UserLog},
 	"Soft":          {"GET", "/soft", handlers.Soft},
 	"SoftActionLog": {"POST", "/soft/actionlog", handlers.SoftActionLog},
+	"ActLog":        {"POST", "/actlog", handlers.SoftActionLog}, // same as SoftActionLog, i don't know why
 	"FrontEndLog":   {"POST", "/frontend/log", handlers.FrontEndLog},
 	"LiveDuration":  {"GET", "/liveduration/data", handlers.LiveDuration},
 }
