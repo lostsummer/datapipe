@@ -44,6 +44,23 @@ var routeMap map[string]routeInfo = map[string]routeInfo{
 	"LiveDuration":  {"GET", "/liveduration/data", handlers.LiveDuration},
 }
 
+//没解决URL大小写敏感的问题, 客户端脚本中都是大小写错落
+var routeMap2 map[string]routeInfo = map[string]routeInfo{
+	"PageClick":     {"GET", "/Page/PageClick", handlers.PageClick},
+	"PageView":      {"GET", "/Page/PageView", handlers.PageView},
+	"ADView":        {"GET", "/Page/AdView", handlers.ADView},
+	"ADClick":       {"GET", "/Page/ADClick", handlers.ADClick},
+	"WebData":       {"GET", "/Data/WebData", handlers.WebData},
+	"AppData":       {"POST", "/Data/AppData", handlers.AppData},
+	"PayLog":        {"GET", "/PayLog/PayLog", handlers.PayLog},
+	"UserLog":       {"POST", "/UserLog/UserLog", handlers.UserLog},
+	"Soft":          {"GET", "/Soft", handlers.Soft},
+	"SoftActionLog": {"POST", "/Soft/ActionLog", handlers.SoftActionLog},
+	"ActLog":        {"POST", "/ActLog", handlers.SoftActionLog},
+	"FrontEndLog":   {"POST", "/FrontEnd/Log", handlers.FrontEndLog},
+	"LiveDuration":  {"GET", "/LiveDuration/Data", handlers.LiveDuration},
+}
+
 //根据importer配置路由初化
 func InitRoute(server *dotweb.DotWeb) {
 	//默认主页
@@ -54,6 +71,9 @@ func InitRoute(server *dotweb.DotWeb) {
 	for _, importerInfo := range importers {
 		if importerInfo.Enable {
 			if route, exist := routeMap[importerInfo.Name]; exist {
+				route.bound(server)
+			}
+			if route, exist := routeMap2[importerInfo.Name]; exist {
 				route.bound(server)
 			}
 		}
