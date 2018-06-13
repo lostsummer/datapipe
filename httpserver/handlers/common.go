@@ -35,6 +35,7 @@ var (
 	NotConfigError = errors.New("not exists such config info")
 	LessParamError = errors.New("less param")
 	GetRedisError  = errors.New("get rediscli failed")
+	EscapeError    = errors.New("invalid URL escape")
 	innerLogger    *logger.InnerLogger
 	agentOS        map[string]string = map[string]string{
 		"Windows CE":     "Windows CE",
@@ -133,12 +134,12 @@ func SetCookieNameValueDomain(ctx dotweb.Context, name string, value string, dom
 func getFirstVistTime(ctx dotweb.Context) string {
 	var fvt string
 	if cookie, err := ctx.ReadCookie(tjfvtCookieName); err == nil {
-		fvt = cookie.Value
+		fvt, _ = URLUnescape(cookie.Value)
 	} else {
 		fvt = time.Now().Format(timeLayout)
 		cookie = &http.Cookie{
 			Name:    tjfvtCookieName,
-			Value:   fvt,
+			Value:   URLEscape(fvt),
 			Expires: time.Now().Add(cookieValidSeconds * time.Second),
 			Domain:  tjCookieDomain,
 		}
@@ -208,4 +209,131 @@ func pushQueueDataToSQ(server, queue, val string) (int64, error) {
 		}
 	}()
 	return redisClient.LPush(queue, val)
+}
+
+// 因为php框架对写入cookie的字串Escape处理(主要原因是cookie无法直接存中文字符, 其实对于我们写入的时间格式完全不必要),
+// 为了兼容线上以及写入的客户端cookie，也需要对first_visit_time进行escape, 以下部分代码扒自标准库net/url并做了精简
+func URLEscape(s string) string {
+	spaceCount, hexCount := 0, 0
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if shouldEscape(c) {
+			if c == ' ' {
+				spaceCount++
+			} else {
+				hexCount++
+			}
+		}
+	}
+
+	if spaceCount == 0 && hexCount == 0 {
+		return s
+	}
+
+	t := make([]byte, len(s)+2*hexCount)
+	j := 0
+	for i := 0; i < len(s); i++ {
+		switch c := s[i]; {
+		case c == ' ':
+			t[j] = '+'
+			j++
+		case shouldEscape(c):
+			t[j] = '%'
+			t[j+1] = "0123456789ABCDEF"[c>>4]
+			t[j+2] = "0123456789ABCDEF"[c&15]
+			j += 3
+		default:
+			t[j] = s[i]
+			j++
+		}
+	}
+	return string(t)
+}
+
+func shouldEscape(c byte) bool {
+	if 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z' || '0' <= c && c <= '9' {
+		return false
+	}
+	switch c {
+	case '-', '_', '.', '~': // §2.3 Unreserved characters (mark)
+		return false
+
+	case '$', '&', '+', ',', '/', ':', ';', '=', '?', '@': // §2.2 Reserved characters (reserved)
+		return true
+
+	}
+	return true
+}
+
+func URLUnescape(s string) (string, error) {
+	// Count %, check that they're well-formed.
+	n := 0
+	hasPlus := false
+	for i := 0; i < len(s); {
+		switch s[i] {
+		case '%':
+			n++
+			if i+2 >= len(s) || !ishex(s[i+1]) || !ishex(s[i+2]) {
+				s = s[i:]
+				if len(s) > 3 {
+					s = s[:3]
+				}
+				return "", EscapeError
+			}
+			i += 3
+		case '+':
+			hasPlus = true
+			i++
+		default:
+			i++
+		}
+	}
+
+	if n == 0 && !hasPlus {
+		return s, nil
+	}
+
+	t := make([]byte, len(s)-2*n)
+	j := 0
+	for i := 0; i < len(s); {
+		switch s[i] {
+		case '%':
+			t[j] = unhex(s[i+1])<<4 | unhex(s[i+2])
+			j++
+			i += 3
+		case '+':
+			t[j] = ' '
+			j++
+			i++
+		default:
+			t[j] = s[i]
+			j++
+			i++
+		}
+	}
+	return string(t), nil
+}
+
+func unhex(c byte) byte {
+	switch {
+	case '0' <= c && c <= '9':
+		return c - '0'
+	case 'a' <= c && c <= 'f':
+		return c - 'a' + 10
+	case 'A' <= c && c <= 'F':
+		return c - 'A' + 10
+	}
+	return 0
+}
+
+func ishex(c byte) bool {
+	switch {
+	case '0' <= c && c <= '9':
+		return true
+	case 'a' <= c && c <= 'f':
+		return true
+	case 'A' <= c && c <= 'F':
+		return true
+	}
+	return false
 }
