@@ -15,6 +15,7 @@ import (
 	"flag"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 )
 
@@ -69,15 +70,20 @@ func parseFlag() {
 		runEnv = httpserver.RunEnv_Develop
 	}
 
-	configPath = basePath + "/conf/" + runEnv
 	httpserver.RunEnv = runEnv
-	httpserver.ConfigPath = configPath
+	configPath = basePath + "/conf/" + runEnv
 
 	//从命令行参数读取配置路径
 	flag.StringVar(&configFile, "config", "", "配置文件路径")
+	flag.Parse()
 	if configFile == "" {
 		configFile = configPath + "/app.conf"
+	} else {
+		if dir, err := filepath.Abs(filepath.Dir(configFile)); err == nil {
+			configPath = dir
+		}
 	}
+	httpserver.ConfigPath = configPath
 
 }
 
