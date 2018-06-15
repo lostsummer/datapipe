@@ -2,6 +2,7 @@
 
 #### Version 1.4.1
 1、mongo增加连接池支持
+2、启用web server requestlog middleware
 2、2018-06-15 10:00
 
 

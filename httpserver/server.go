@@ -45,6 +45,7 @@ func StartServer() {
 		if config.CurrentConfig.HttpServer.Enable {
 			srvConfig := dotconfig.MustInitConfig(ConfigPath + "/dotweb.conf")
 			srv = dotweb.ClassicWithConf(srvConfig)
+			srv.UseRequestLog()
 			if RunEnv == RunEnv_Develop {
 				srv.SetDevelopmentMode()
 			}
