@@ -11,6 +11,7 @@ import (
 )
 
 var mgoSessionPool *sync.Map
+const MaxSessionPoolLimit = 50
 
 func init(){
 	mgoSessionPool = new(sync.Map)
@@ -87,6 +88,7 @@ func getSessionCopy(conn string) (*mgo.Session, error){
 		logger.Log("repository.impl.getSessionCopy::Dial["+conn+"]失败 - "+err.Error(), logdefine.LogTarget_MongoDB, logdefine.LogLevel_Error)
 		return nil, err
 	}else{
+		session.SetPoolLimit(MaxSessionPoolLimit)
 		mgoSessionPool.Store(conn, session)
 		return session.Clone(), nil
 	}
