@@ -1,3 +1,10 @@
+## datapipe - version list
+
+#### Version 1.4.1
+1、mongo增加连接池支持
+2、2018-06-15 10:00
+
+
 #### Version 1.4
 1、新增http server，接收web端统计数据入队列
 2、配置文件增加dotweb.conf, 

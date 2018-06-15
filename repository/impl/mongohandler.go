@@ -7,7 +7,14 @@ import (
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"sync"
 )
+
+var mgoSessionPool *sync.Map
+
+func init(){
+	mgoSessionPool = new(sync.Map)
+}
 
 type MongoHandler struct {
 }
@@ -28,11 +35,10 @@ func (da *MongoHandler) SetConn(conn, dbName string) {
 * 如果失败，则返回具体的error，成功则返回nil
  */
 func (da *MongoHandler) InsertJsonData(collectionName, jsonData string) error {
-	session, err := mgo.Dial(monogDBConn)
+	session, err := getSessionCopy(monogDBConn)
 	if err != nil {
 		logger.Log("repository.impl.MongoHandler::Dial["+monogDBConn+"]失败 - "+err.Error(), logdefine.LogTarget_MongoDB, logdefine.LogLevel_Error)
 		return err
-		//panic(err)
 	}
 	defer session.Close()
 
@@ -64,4 +70,24 @@ func (da *MongoHandler) InsertJsonData(collectionName, jsonData string) error {
 		return err
 	}
 	return nil
+}
+
+// getSessionCopy get seesion copy with conn from pool
+func getSessionCopy(conn string) (*mgo.Session, error){
+	data, isOk:=mgoSessionPool.Load(conn)
+	if isOk{
+		session, isSuccess := data.(mgo.Session)
+		if isSuccess{
+			return session.Clone(), nil
+		}
+	}
+
+	session, err := mgo.Dial(conn)
+	if err!= nil{
+		logger.Log("repository.impl.getSessionCopy::Dial["+conn+"]失败 - "+err.Error(), logdefine.LogTarget_MongoDB, logdefine.LogLevel_Error)
+		return nil, err
+	}else{
+		mgoSessionPool.Store(conn, session)
+		return session.Clone(), nil
+	}
 }
