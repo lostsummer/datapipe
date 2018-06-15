@@ -49,7 +49,6 @@ func StartServer() {
 				srv.SetDevelopmentMode()
 			}
 			InitRoute(srv)
-			srv.HttpServer.SetEnabledSession(true)
 		} else {
 			srv = nil
 			srvStatus <- msgSrvNotConfig
