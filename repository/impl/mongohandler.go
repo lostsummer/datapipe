@@ -77,7 +77,7 @@ func (da *MongoHandler) InsertJsonData(collectionName, jsonData string) error {
 func getSessionCopy(conn string) (*mgo.Session, error){
 	data, isOk:=mgoSessionPool.Load(conn)
 	if isOk{
-		session, isSuccess := data.(mgo.Session)
+		session, isSuccess := data.(*mgo.Session)
 		if isSuccess{
 			return session.Clone(), nil
 		}
