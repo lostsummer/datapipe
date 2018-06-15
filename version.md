@@ -1,3 +1,8 @@
+#### Version 1.4
+1、新增http server，接收web端统计数据入队列
+2、配置文件增加dotweb.conf, 
+3、根据环境变量及命令行参数选择配置加载路径
+4、2018-06-15 10:00
 
 #### Version 1.3
 1、新增component包
