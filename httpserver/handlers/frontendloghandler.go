@@ -36,26 +36,38 @@ func FrontEndLog(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	datajson := ctx.PostFormValue(postActionDataKey)
-	if datajson == "" {
-		innerLogger.Error("HttpServer::FrontEndLog " + LessParamError.Error())
-		respstr = respFailed
-		return nil
-	}
 	importerConf, err := getImporterConf("FrontEndLog")
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::FrontEndLog " + err.Error())
 		return nil
 	}
-	var actionData ActionData
-	if err := json.Unmarshal([]byte(datajson), &actionData); err != nil {
+
+	datajson := ctx.PostFormValue(postActionDataKey)
+	if datajson == "" {
+		innerLogger.Error("HttpServer::FrontEndLog " + LessParamError.Error())
+		respstr = respFailed
+		return nil
+	}
+	//屏蔽客户端传非法json的问题 ([, {}, {}])
+	datajson = strings.Replace(datajson, "[,", "[", 1)
+	datajson = strings.Replace(datajson, "\t", "  ", 1)
+	datajson = strings.Replace(datajson, "\r", "", 1)
+	datajson = strings.Replace(datajson, "\n", "", 1)
+
+	var actionData []FELog
+	err = json.Unmarshal([]byte(datajson), &actionData)
+	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::FrontEndLog fail to parse post json actionData")
+		innerLogger.Error(err.Error())
+		innerLogger.Error("\n")
+		innerLogger.Error(datajson)
+		innerLogger.Error("\n")
 		return nil
 	}
 
-	for _, log := range actionData.Logs {
+	for _, log := range actionData {
 		t := reflect.TypeOf(log)
 		v := reflect.ValueOf(log)
 		dataMap := make(map[string]string)

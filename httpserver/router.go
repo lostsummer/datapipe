@@ -15,14 +15,20 @@ type routeInfo struct {
 }
 
 //根据routeInfo结构信息绑定路由handler
+//180615 update: 原php程序全方法支持, 另外发现web客户端发数据存在方法乱用问题
+//(例如对 /soft 用 POST) 所以无奈对路由全方法支持
 func (this *routeInfo) bound(server *dotweb.DotWeb) {
 	route := this.Route
 	handlerFunc := this.HandlerFunc
 	switch this.HttpMethod {
 	case "GET":
-		server.HttpServer.GET(route, handlerFunc)
+		//server.HttpServer.GET(route, handlerFunc)
+		fallthrough
 	case "POST":
-		server.HttpServer.POST(route, handlerFunc)
+		//server.HttpServer.POST(route, handlerFunc)
+		fallthrough
+	default:
+		server.HttpServer.Any(route, handlerFunc)
 	}
 	return
 }
