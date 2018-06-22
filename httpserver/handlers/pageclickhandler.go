@@ -12,21 +12,24 @@ var pageClickJsonKeys = [...]string{
 	"App",
 	"Module",
 	"ClickKey",
+	"ClickData",
+	"ClickRemark",
 	"PageUrl",
 	"HtmlType",
 	"Remark",
-	"Ver",
+	//"Ver",	//php代码中从参数获取，但并没有用在下发json上
 }
 
 var pageClickUrlKeys = [...]string{
 	"app",
 	"module",
 	"clickkey",
+	"clickdata",
 	"clickremark",
 	"pageurl",
 	"htmltype",
 	"remark",
-	"ver",
+	//"ver",  //php代码中从参数获取，但并没有用在下发json上
 }
 
 func PageClick(ctx dotweb.Context) error {
@@ -69,6 +72,9 @@ func PageClick(ctx dotweb.Context) error {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
 			innerLogger.Error("HttpServer::PageClick push queue data failed!")
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
 		return nil

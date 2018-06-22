@@ -15,7 +15,7 @@ var pageViewJsonKeys = [...]string{
 	"App",
 	"Module",
 	"Remark",
-	"Ver",
+	//"Ver",   //php代码中从参数获取，但并没有用在下发json上
 }
 
 var pageViewUrlKeys = [...]string{
@@ -25,7 +25,7 @@ var pageViewUrlKeys = [...]string{
 	"app",
 	"module",
 	"remark",
-	"ver",
+	//"ver",   //php代码中从参数获取，但并没有用在下发json上
 }
 
 func PageView(ctx dotweb.Context) error {
@@ -68,7 +68,10 @@ func PageView(ctx dotweb.Context) error {
 		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
-			innerLogger.Error("HttpServer::PageView push queue data failed!")
+			innerLogger.Error("HttpServer::PageView push queue data failed! ")
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
 		return nil

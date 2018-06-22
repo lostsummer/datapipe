@@ -59,11 +59,8 @@ func FrontEndLog(ctx dotweb.Context) error {
 	err = json.Unmarshal([]byte(datajson), &actionData)
 	if err != nil {
 		respstr = respFailed
-		innerLogger.Error("HttpServer::FrontEndLog fail to parse post json actionData")
-		innerLogger.Error(err.Error())
-		innerLogger.Error("\n")
-		innerLogger.Error(datajson)
-		innerLogger.Error("\n")
+		innerLogger.Error("HttpServer::FrontEndLog fail to parse post json actionData: " +
+			err.Error() + "\r\n" + datajson + "\r\n")
 		return nil
 	}
 
@@ -89,6 +86,9 @@ func FrontEndLog(ctx dotweb.Context) error {
 				respstr = strconv.FormatInt(qlen, 10)
 			} else {
 				innerLogger.Error("HttpServer::FrontEndLog push queue data failed!")
+				if err != nil {
+					innerLogger.Error(err.Error())
+				}
 				respstr = respFailed
 			}
 		}

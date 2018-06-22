@@ -64,6 +64,9 @@ func LiveDuration(ctx dotweb.Context) error {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
 			innerLogger.Error("HttpServer::LiveDuration push queue data failed!")
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
 		return nil

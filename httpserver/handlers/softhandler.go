@@ -54,10 +54,11 @@ func Soft(ctx dotweb.Context) error {
 		dataMap[k] = params[strings.ToLower(k)]
 	}
 	dataMap["PageUrl"] = getFullUrl(ctx)
-	dataMap["UserAgent"] = getUserAgent(ctx)
+	//dataMap["UserAgent"] = getUserAgent(ctx)  //php版本中有，线上.Net版本无
 	dataMap["GlobalID"] = getGlobalID(ctx)
 	dataMap["FirstVisitTime"] = getFirstVistTime(ctx)
 	dataMap["ClientIP"] = getClientIP(ctx)
+	dataMap["LogID"] = "0" //php版本无， 线上.Net版本有
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::Soft " + err.Error())
@@ -76,6 +77,9 @@ func Soft(ctx dotweb.Context) error {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
 			innerLogger.Error("HttpServer::Soft push queue data failed!")
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
 		return nil

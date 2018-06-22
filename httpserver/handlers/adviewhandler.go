@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -14,19 +15,19 @@ var adUrlKeys = [...]string{
 	"logtype",
 	"data",
 	"referurl",
-	"ver",
+	//"ver",
 }
 
-var adExtraJsonKeys = [...]string{
-	"mid",
-	"pid",
-	"sid",
-	"tid",
-	"uid",
-	"uname",
-	"adcode",
-	"targeturl",
-	"pageurl",
+type QueryData struct {
+	Mid       string `json:"mid"`
+	Pid       string `json:"pid"`
+	Sid       string `json:"sid"`
+	Tid       string `json:"tid"`
+	Uid       string `json:"uid"`
+	Uname     string `json:"uname"`
+	AdCode    string `json:"adcode"`
+	TargetUrl string `json:"targeturl"`
+	PageUrl   string `json:"pageurl"`
 }
 
 func adbase(ctx dotweb.Context, name string) error {
@@ -52,11 +53,28 @@ func adbase(ctx dotweb.Context, name string) error {
 	}
 	dataMap := make(map[string]string)
 	for _, k := range adUrlKeys {
-		dataMap[k] = params[strings.ToLower(k)]
+		if k != "data" {
+			dataMap[k] = params[strings.ToLower(k)]
+		}
 	}
-	for _, k := range adExtraJsonKeys {
-		dataMap[k] = "" //php代码中都留空, 这是一个疑惑点，先逻辑照搬
+	var queryData QueryData
+	err = json.Unmarshal([]byte(params["data"]), &queryData)
+	if err != nil {
+		respstr = respFailed
+		innerLogger.Error("HttpServer::" + name + " fail to parse post json: " +
+			err.Error() + "\r\n" + params["data"] + "\r\n")
+		return nil
 	}
+	t := reflect.TypeOf(queryData)
+	v := reflect.ValueOf(queryData)
+	for i := 0; i < t.NumField(); i++ {
+		key := strings.ToLower(t.Field(i).Name)
+		val := v.Field(i).Interface()
+		dataMap[key] = val.(string)
+	}
+	//for _, k := range adExtraJsonKeys {
+	//	dataMap[k] = "" //php代码中都留空, 这是一个疑惑点，先逻辑照搬
+	//}
 	ua := getUserAgent(ctx)
 	dataMap["useragent"] = ua
 	dataMap["writetime"] = getNowFormatTime()
@@ -73,6 +91,9 @@ func adbase(ctx dotweb.Context, name string) error {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
 			innerLogger.Error("HttpServer::" + name + " push queue data failed!")
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
 		return nil

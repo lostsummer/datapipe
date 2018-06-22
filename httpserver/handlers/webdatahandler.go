@@ -15,7 +15,7 @@ var webDataJsonKeys = [...]string{
 	"Data",
 	"PageUrl",
 	"Remark",
-	"Ver",
+	//"Ver",
 	"ClientIP",
 }
 
@@ -26,7 +26,7 @@ var webDataUrlKeys = [...]string{
 	"data",
 	"pageurl",
 	"remark",
-	"ver",
+	//"ver",
 	"clientip",
 }
 
@@ -61,6 +61,7 @@ func WebData(ctx dotweb.Context) error {
 	dataMap["UserAgent"] = getUserAgent(ctx)
 	dataMap["GlobalID"] = getGlobalID(ctx)
 	dataMap["VisitTime"] = getNowFormatTime()
+	dataMap["LogID"] = "0" //php版本没有，线上.Net版本有此字段
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::WebData " + err.Error())
@@ -71,6 +72,9 @@ func WebData(ctx dotweb.Context) error {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
 			innerLogger.Error("HttpServer::WebData push queue data failed!")
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
 		return nil
