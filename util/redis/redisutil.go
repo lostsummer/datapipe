@@ -29,8 +29,8 @@ func init() {
 // 重写生成连接池方法
 func newPool(redisIP string) *redis.Pool {
 	return &redis.Pool{
-		MaxIdle:   5,
-		MaxActive: 20, // max number of connections
+		MaxIdle:   20,
+		MaxActive: 100, // max number of connections
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", redisIP)
 			if err != nil {

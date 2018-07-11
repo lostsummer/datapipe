@@ -71,6 +71,7 @@ var routeMap2 map[string]routeInfo = map[string]routeInfo{
 func InitRoute(server *dotweb.DotWeb) {
 	//默认主页
 	server.HttpServer.GET("/", handlers.Index)
+	server.HttpServer.GET("/test", handlers.Test)
 
 	//根据importer开关绑定route
 	importers := config.CurrentConfig.HttpServer.Importers

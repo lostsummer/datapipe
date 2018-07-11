@@ -21,7 +21,7 @@ import (
 const (
 	respSucceed        = "1"
 	respFailed         = "-1"
-	timeLayout         = "2006-01-02 03:04:05"
+	timeLayout         = "2006-01-02 15:04:05"
 	tjgidCookieName    = "em_tongji_cookie_globalid"
 	tjfvtCookieName    = "em_tongji_cookie_firstvisittime"
 	comgidCookieName   = "tongji_globalid"
@@ -69,6 +69,21 @@ var (
 		"R4EA":  "R4EA",
 		"UP":    "UP",
 		"UCWEB": "UCWEB",
+	}
+
+	/* 可获取客户端IP地址的http头
+	** 后三个可能在nginx给php-fpm中反向代理中有添加
+	** 但在nginx做负载均衡时并没有
+	** 实测nginx做负载均衡时主要靠前两个
+	 */
+	clientIPHeader []string = []string{
+		"X-Forwarded-For",
+		"X-Real-IP",
+		"Proxy-Client-IP",
+		"WL-Proxy-Client-IP",
+		"HTTP_X_FORWARDED_FOR",
+		"HTTP_CLIENT_IP",
+		"REMOTE_ADDR",
 	}
 )
 
@@ -153,11 +168,13 @@ func getNowFormatTime() string {
 }
 
 func getClientIP(ctx dotweb.Context) string {
-	if ip := ctx.Request().Header.Get("Remote_addr"); ip == "" {
-		return ctx.Request().RemoteAddr
-	} else {
-		return ip
+	for _, name := range clientIPHeader {
+		ip := ctx.Request().Header.Get(name)
+		if ip != "" {
+			return ip
+		}
 	}
+	return ctx.Request().RemoteIP()
 }
 
 func getFullUrl(ctx dotweb.Context) string {
