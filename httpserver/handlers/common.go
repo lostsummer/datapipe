@@ -171,6 +171,11 @@ func getClientIP(ctx dotweb.Context) string {
 	for _, name := range clientIPHeader {
 		ip := ctx.Request().Header.Get(name)
 		if ip != "" {
+			// 经过多级反向代理 X-Forwarded-For 的值可能是多个逗号分隔的IP地址
+			// 取第一个
+			if strings.Index(ip, ",") > -1 {
+				ip = strings.Split(ip, ",")[0]
+			}
 			return ip
 		}
 	}
