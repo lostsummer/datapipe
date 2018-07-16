@@ -10,8 +10,8 @@ import (
 
 var liveDuraJsonKeys = [...]string{
 	"App",
-	"Uid",
-	"Pid",
+	//"UserID",   // 这个特别，不是和url中uid逐字对应
+	"PID",
 	"ClassID",
 	"Remark",
 }
@@ -48,9 +48,13 @@ func LiveDuration(ctx dotweb.Context) error {
 		return nil
 	}
 	dataMap := make(map[string]string)
+	/*
+		App, PID, ClassID, Remark
+	*/
 	for _, k := range liveDuraJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
 	}
+	dataMap["UserID"] = params["uid"]
 	dataMap["BeginTime"] = getNowFormatTime()
 	dataMap["EndTime"] = getNowFormatTime()
 	dataMap["WriteTime"] = getNowFormatTime()

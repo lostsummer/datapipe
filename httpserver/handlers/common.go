@@ -36,8 +36,12 @@ var (
 	LessParamError = errors.New("less param")
 	GetRedisError  = errors.New("get rediscli failed")
 	EscapeError    = errors.New("invalid URL escape")
-	innerLogger    *logger.InnerLogger
-	agentOS        map[string]string = map[string]string{
+)
+
+var (
+	innerLogger *logger.InnerLogger
+
+	agentOS = map[string]string{
 		"Windows CE":     "Windows CE",
 		"iPhone":         "iPhone",
 		"Android":        "Android",
@@ -48,7 +52,8 @@ var (
 		"Windows NT 5.1": "Windows XP",
 		"Windows NT 5.0": "Windows 2000",
 	}
-	agentBrowser map[string]string = map[string]string{
+
+	agentBrowser = map[string]string{
 		"GreenBrowser":    "GreenBrowser",
 		"NetCaptor":       "NetCaptor",
 		"TencentTraveler": "TencentTraveler",
@@ -76,7 +81,7 @@ var (
 	** 但在nginx做负载均衡时并没有
 	** 实测nginx做负载均衡时主要靠前两个
 	 */
-	clientIPHeader []string = []string{
+	clientIPHeader = []string{
 		"X-Forwarded-For",
 		"X-Real-IP",
 		"Proxy-Client-IP",
@@ -112,13 +117,17 @@ func createGuid() string {
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
 		return ""
 	}
-	md5str := getMd5String(base64.URLEncoding.EncodeToString(b))
-	return strings.Join([]string{
-		strings.ToUpper(md5str[0:8]),
-		strings.ToUpper(md5str[8:12]),
-		strings.ToUpper(md5str[12:16]),
-		strings.ToUpper(md5str[16:20]),
-		strings.ToUpper(md5str[20:32])}, "-")
+	md5str := strings.ToUpper(
+		getMd5String(base64.URLEncoding.EncodeToString(b)))
+
+	return strings.Join(
+		[]string{
+			md5str[0:8],
+			md5str[8:12],
+			md5str[12:16],
+			md5str[16:20],
+			md5str[20:32],
+		}, "-")
 
 }
 
@@ -233,8 +242,10 @@ func pushQueueDataToSQ(server, queue, val string) (int64, error) {
 	return redisClient.LPush(queue, val)
 }
 
-// 因为php框架对写入cookie的字串Escape处理(主要原因是cookie无法直接存中文字符, 其实对于我们写入的时间格式完全不必要),
-// 为了兼容线上以及写入的客户端cookie，也需要对first_visit_time进行escape, 以下部分代码扒自标准库net/url并做了精简
+// 因为php框架对写入cookie的字串Escape处理(主要原因是cookie无法直接存中文字符,
+// 其实对于我们写入的时间格式完全不必要),
+// 为了兼容线上以及写入的客户端cookie，也需要对first_visit_time进行escape,
+// 以下部分代码扒自标准库net/url并做了精简
 func URLEscape(s string) string {
 	spaceCount, hexCount := 0, 0
 	for i := 0; i < len(s); i++ {
