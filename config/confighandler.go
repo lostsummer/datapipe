@@ -59,6 +59,16 @@ func InitConfig(configFile string) *AppConfig {
 		}
 	}
 
+	result.AccumulatorMap = make(map[string]*Accumulator)
+	if result.HttpServer.Enable {
+		for k, v := range result.HttpServer.Accumulators {
+			if v.Enable {
+				result.AccumulatorMap[v.Name] = &result.HttpServer.Accumulators[k]
+				innerLogger.Info("AppConfig::InitConfig Load Accumulator => " + v.Name + "," + v.ServerType + "," + v.ServerUrl + "," + v.ToCounter)
+			}
+		}
+	}
+
 	CurrentConfig = &result
 
 	innerLogger.Info("AppConfig::InitConfig 配置文件[" + configFile + "]完成")

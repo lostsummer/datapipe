@@ -144,3 +144,11 @@ func (rc *RedisClient) Set(key string, val string) (string, error) {
 	val, err := redis.String(conn.Do("SET", key, val))
 	return val, err
 }
+
+//设置指定key的内容
+func (rc *RedisClient) HIncrBy(key string, field string, val int) (int64, error) {
+	conn := rc.pool.Get()
+	defer conn.Close()
+	ret, err := redis.Int64(conn.Do("HINCRBY", key, field, val))
+	return ret, err
+}

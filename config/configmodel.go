@@ -12,15 +12,16 @@ const (
 
 //代理配置信息
 type AppConfig struct {
-	XMLName     xml.Name   `xml:"config"`
-	Log         Log        `xml:"log"`
-	Redis       Redis      `xml:"redis"`
-	MongoDB     MongoDB    `xml:"mongodb"`
-	Kafka       Kafka      `xml:"kafka"`
-	HttpServer  HttpServer `xml:"httpserver"`
-	Tasks       []TaskInfo `xml:"tasks>task"`
-	ImporterMap map[string]*Importer
-	TaskMap     map[string]*TaskInfo
+	XMLName        xml.Name   `xml:"config"`
+	Log            Log        `xml:"log"`
+	Redis          Redis      `xml:"redis"`
+	MongoDB        MongoDB    `xml:"mongodb"`
+	Kafka          Kafka      `xml:"kafka"`
+	HttpServer     HttpServer `xml:"httpserver"`
+	Tasks          []TaskInfo `xml:"tasks>task"`
+	ImporterMap    map[string]*Importer
+	AccumulatorMap map[string]*Accumulator
+	TaskMap        map[string]*TaskInfo
 }
 
 //Redis配置
@@ -58,8 +59,9 @@ type TaskInfo struct {
 }
 
 type HttpServer struct {
-	Enable    bool       `xml:"enable,attr"`
-	Importers []Importer `xml:"importer"`
+	Enable       bool          `xml:"enable,attr"`
+	Importers    []Importer    `xml:"importer"`
+	Accumulators []Accumulator `xml:"accumulator"`
 }
 
 type Importer struct {
@@ -68,6 +70,14 @@ type Importer struct {
 	ServerType string `xml:"servertype,attr"`
 	ServerUrl  string `xml:"serverurl,attr"`
 	ToQueue    string `xml:"toqueue,attr"`
+}
+
+type Accumulator struct {
+	Name       string `xml:"name,attr"`
+	Enable     bool   `xml:"enable,attr"`
+	ServerType string `xml:"servertype,attr"`
+	ServerUrl  string `xml:"serverurl,attr"`
+	ToCounter  string `xml:"tocounter,attr"`
 }
 
 // HasTrigger 检查是否存在触发器配置
