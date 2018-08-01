@@ -78,6 +78,7 @@ type Accumulator struct {
 	ServerType string `xml:"servertype,attr"`
 	ServerUrl  string `xml:"serverurl,attr"`
 	ToCounter  string `xml:"tocounter,attr"`
+	ToSet      string `xml:"toset,attr"`
 }
 
 // HasTrigger 检查是否存在触发器配置

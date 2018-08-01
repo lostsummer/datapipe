@@ -52,7 +52,8 @@ func InitRoute(server *dotweb.DotWeb) {
 		"LiveDuration":  {server.HttpServer.Any, "/LiveDuration/Data", handlers.LiveDuration},
 	}
 	var accumulatorRoute = map[string]routeInfo{
-		"Counter": {server.HttpServer.Any, "/Counter", handlers.Counter},
+		"PVCounter": {server.HttpServer.Any, "/Counter/PV", handlers.PVCounter},
+		"UVCounter": {server.HttpServer.Any, "/Counter/UV", handlers.UVCounter},
 	}
 	for _, importerInfo := range importers {
 		if importerInfo.Enable {

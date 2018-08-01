@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -251,23 +250,6 @@ func pushQueueDataToSQ(server, queue, val string) (int64, error) {
 		}
 	}()
 	return redisClient.LPush(queue, val)
-}
-
-func counterIncrBy(accConf *config.Accumulator, category string, field string, val int) (int64, error) {
-	serverUrl := accConf.ServerUrl
-	key := fmt.Sprintf("%s:%s:%s", accConf.ToCounter, category, time.Now().Format("20060102"))
-	redisClient := redisutil.GetRedisClient(serverUrl)
-	if redisClient == nil {
-		return -1, GetRedisError
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			if s, ok := p.(string); ok {
-				innerLogger.Error(s)
-			}
-		}
-	}()
-	return redisClient.HIncrBy(key, field, val)
 }
 
 // 因为php框架对写入cookie的字串Escape处理(主要原因是cookie无法直接存中文字符,

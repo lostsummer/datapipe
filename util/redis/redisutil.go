@@ -145,10 +145,23 @@ func (rc *RedisClient) Set(key string, val string) (string, error) {
 	return val, err
 }
 
-//设置指定key的内容
 func (rc *RedisClient) HIncrBy(key string, field string, val int) (int64, error) {
 	conn := rc.pool.Get()
 	defer conn.Close()
 	ret, err := redis.Int64(conn.Do("HINCRBY", key, field, val))
+	return ret, err
+}
+
+func (rc *RedisClient) SAdd(key string, val string) error {
+	conn := rc.pool.Get()
+	defer conn.Close()
+	_, err := redis.Int64(conn.Do("SADD", key, val))
+	return err
+}
+
+func (rc *RedisClient) SCard(key string) (int64, error) {
+	conn := rc.pool.Get()
+	defer conn.Close()
+	ret, err := redis.Int64(conn.Do("SCARD", key))
 	return ret, err
 }
