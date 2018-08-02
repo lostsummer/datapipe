@@ -19,11 +19,11 @@ type IncrData struct {
 	Time     int64  `json:"time"`
 }
 
-type IPData struct {
+type EnterData struct {
 	Category string `json:"category"`
 	AppID    string `json:"appid"`
 	Key      string `json:"key"`
-	IP       string `json:"ip"`
+	GlobalID string `json:"globalid"`
 	Time     int64  `json:"time"`
 }
 
@@ -50,9 +50,9 @@ func counterIncrBy(accConf *config.Accumulator, incr *IncrData) (int64, error) {
 	return redisClient.HIncrBy(redisKey, redisField, val)
 }
 
-func counterSet(accConf *config.Accumulator, ipData *IPData, val int64) error {
+func counterSet(accConf *config.Accumulator, enter *EnterData, val int64) error {
 	serverUrl := accConf.ServerUrl
-	category, appid, key := ipData.Category, ipData.AppID, ipData.Key
+	category, appid, key := enter.Category, enter.AppID, enter.Key
 	redisKey := fmt.Sprintf("%s:%s:%s", accConf.ToCounter, category, dateStr())
 	redisField := fmt.Sprintf("%s:%s", appid, key)
 	redisClient := redisutil.GetRedisClient(serverUrl)
@@ -69,9 +69,9 @@ func counterSet(accConf *config.Accumulator, ipData *IPData, val int64) error {
 	return redisClient.HSet(redisKey, redisField, fmt.Sprintf("%d", val))
 }
 
-func addToSet(accConf *config.Accumulator, ipData *IPData) (int64, error) {
+func addToSet(accConf *config.Accumulator, enter *EnterData) (int64, error) {
 	serverUrl := accConf.ServerUrl
-	category, appid, key, ip := ipData.Category, ipData.AppID, ipData.Key, ipData.IP
+	category, appid, key, globalid := enter.Category, enter.AppID, enter.Key, enter.GlobalID
 	redisKey := fmt.Sprintf("%s:%s:%s:%s:%s", accConf.ToSet, category, dateStr(), appid, key)
 	redisClient := redisutil.GetRedisClient(serverUrl)
 	if redisClient == nil {
@@ -85,7 +85,7 @@ func addToSet(accConf *config.Accumulator, ipData *IPData) (int64, error) {
 		}
 	}()
 
-	err := redisClient.SAdd(redisKey, ip)
+	err := redisClient.SAdd(redisKey, globalid)
 	if err != nil {
 		return -1, err
 	}
@@ -112,16 +112,21 @@ func PVCounter(ctx dotweb.Context) error {
 		return nil
 	}
 
-	var incrData IncrData
-	err = json.Unmarshal([]byte(datajson), &incrData)
+	var incr IncrData
+	err = json.Unmarshal([]byte(datajson), &incr)
 	if err != nil {
 		respstr = respFailed
-		innerLogger.Error("HttpServer::PVCounter fail to parse post json incrData: " +
+		innerLogger.Error("HttpServer::PVCounter fail to parse post json incr data: " +
 			err.Error() + "\r\n" + datajson + "\r\n")
+		return nil
+	} else if incr.Category == "" || incr.AppID == "" || incr.Key == "" {
+		respstr = respFailed
+		innerLogger.Error("HttpServer::PVCounter json data less fields:" +
+			"\r\n" + datajson + "\r\n")
 		return nil
 	}
 
-	ret, err := counterIncrBy(accConf, &incrData)
+	ret, err := counterIncrBy(accConf, &incr)
 
 	if ret > 0 && err == nil {
 		respstr = strconv.FormatInt(ret, 10)
@@ -156,16 +161,21 @@ func UVCounter(ctx dotweb.Context) error {
 		return nil
 	}
 
-	var ipData IPData
-	err = json.Unmarshal([]byte(datajson), &ipData)
+	var enter EnterData
+	err = json.Unmarshal([]byte(datajson), &enter)
 	if err != nil {
 		respstr = respFailed
-		innerLogger.Error("HttpServer::UVCounter fail to parse post json incrData: " +
+		innerLogger.Error("HttpServer::UVCounter fail to parse post json enter data: " +
 			err.Error() + "\r\n" + datajson + "\r\n")
+		return nil
+	} else if enter.Category == "" || enter.AppID == "" || enter.Key == "" || enter.GlobalID == "" {
+		respstr = respFailed
+		innerLogger.Error("HttpServer::UVCounter json data less fields:" +
+			"\r\n" + datajson + "\r\n")
 		return nil
 	}
 
-	scard, err := addToSet(accConf, &ipData)
+	scard, err := addToSet(accConf, &enter)
 
 	if err != nil || scard < 0 {
 		innerLogger.Error("HttpServer::UVCounter saddToSet failed!")
@@ -176,7 +186,7 @@ func UVCounter(ctx dotweb.Context) error {
 		return nil
 	}
 
-	err = counterSet(accConf, &ipData, scard)
+	err = counterSet(accConf, &enter, scard)
 	if err != nil {
 		innerLogger.Error("HttpServer::UVCounter counterSet failed!")
 		if err != nil {
