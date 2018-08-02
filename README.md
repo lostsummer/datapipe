@@ -78,3 +78,18 @@ httpserver自身运行的配置文件在单独的 dotweb.conf 中
 </config>　
 
 ```
+## 通用计数服务
+
+2018-08 根据需求新增，详见：[wiki](http://git.emoney.cn/techplat/datapipe/wikis/common-counter)
+
+配置, httpserver 下:
+
+```xml
+   <httpserver enable="true">
+        <accumulator enable="true" name="PVCounter" servertype="redis" serverurl="172.28.1.118:6379" tocounter="EMoney.DataPipe:Counter"/>
+        <accumulator enable="true" name="UVCounter" servertype="redis" serverurl="172.28.1.118:6379" tocounter="EMoney.DataPipe:Counter" toset="EMoney.DataPipe:UserSet"/>
+    </httpserver>
+```
+
+"tcounter" 为redis中计数key前缀
+"toset" 为统计去重用户数（用于UV统计）使用的set的key前缀
