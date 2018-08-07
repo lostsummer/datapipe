@@ -1,13 +1,14 @@
 package task
 
 import (
-	"github.com/devfeel/dottask"
 	"TechPlat/datapipe/config"
-	"fmt"
-	"TechPlat/datapipe/util/log"
-	"TechPlat/datapipe/task/tasks"
-	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/counter"
+	"TechPlat/datapipe/global"
+	"TechPlat/datapipe/task/tasks"
+	"TechPlat/datapipe/util/log"
+	"fmt"
+
+	"github.com/devfeel/dottask"
 )
 
 var (
@@ -20,8 +21,8 @@ func init() {
 	taskService = global.TaskService
 }
 
-const(
-	taskDueTime = 0
+const (
+	taskDueTime  = 0
 	taskInterval = 1 //1毫秒
 )
 
@@ -29,17 +30,19 @@ func LoadTasks(service *task.TaskService) {
 	innerLogger.Info("Task::RegisterTask begin...")
 	for _, v := range config.CurrentConfig.TaskMap {
 		innerLogger.Info("Task::RegisterTask::RegisterTask => " + v.TaskID)
-		if v.TargetType == config.Target_MongoDB{
+		switch v.TargetType {
+		case config.Target_MongoDB:
 			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.MongoDBHandler, v)
-		}else if v.TargetType == config.Target_Http{
+		case config.Target_Http:
 			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.HttpHandler, v)
-		}else if v.TargetType == config.Target_Kafka{
+		case config.Target_Kafka:
 			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.KafkaHandler, v)
 		}
+
 	}
 
 	//load queue task
-	global.TaskService.CreateQueueTask(counter.QueueTaskName, true,1, counter.DealMessage, nil, counter.QueueSize)
+	global.TaskService.CreateQueueTask(counter.QueueTaskName, true, 1, counter.DealMessage, nil, counter.QueueSize)
 	innerLogger.Info("Task::RegisterTask end")
 }
 
@@ -53,7 +56,7 @@ func StartTaskService() {
 	fmt.Println("StartTaskService", taskService.PrintAllCronTask())
 }
 
-func ReStartTaskService(){
+func ReStartTaskService() {
 	//step 1: stop and remove all task
 	taskService.RemoveAllTask()
 
