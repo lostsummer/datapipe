@@ -149,18 +149,19 @@ func getGlobalID(ctx dotweb.Context) string {
 		gid = cookie.Value
 	} else {
 		gid = createGuid()
-		SetCookieNameValueDomain(ctx, tjgidCookieName, gid, tjCookieDomain)
-		SetCookieNameValueDomain(ctx, comgidCookieName, gid, comCookieDomain)
+		SetCookieNameValueDomainPath(ctx, tjgidCookieName, gid, tjCookieDomain, "/")
+		SetCookieNameValueDomainPath(ctx, comgidCookieName, gid, comCookieDomain, "/")
 	}
 	return gid
 }
 
-func SetCookieNameValueDomain(ctx dotweb.Context, name string, value string, domain string) {
+func SetCookieNameValueDomainPath(ctx dotweb.Context, name string, value string, domain string, path string) {
 	cookie := &http.Cookie{
 		Name:    name,
 		Value:   value,
 		Expires: time.Now().Add(cookieValidSeconds * time.Second),
 		Domain:  domain,
+		Path:    path,
 	}
 	ctx.SetCookie(cookie)
 }
@@ -171,13 +172,7 @@ func getFirstVistTime(ctx dotweb.Context) string {
 		fvt, _ = URLUnescape(cookie.Value)
 	} else {
 		fvt = time.Now().Format(timeLayout)
-		cookie = &http.Cookie{
-			Name:    tjfvtCookieName,
-			Value:   URLEscape(fvt),
-			Expires: time.Now().Add(cookieValidSeconds * time.Second),
-			Domain:  tjCookieDomain,
-		}
-		ctx.SetCookie(cookie)
+		SetCookieNameValueDomainPath(ctx, tjfvtCookieName, URLEscape(fvt), tjCookieDomain, "/")
 	}
 	return fvt
 }
