@@ -181,6 +181,10 @@ func getNowFormatTime() string {
 	return time.Now().Format(timeLayout)
 }
 
+func getNowUnixSec() int64 {
+	return time.Now().Unix()
+}
+
 func getClientIP(ctx dotweb.Context) string {
 	for _, name := range clientIPHeader {
 		ip := ctx.Request().Header.Get(name)

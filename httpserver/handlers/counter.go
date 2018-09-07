@@ -15,7 +15,8 @@ type IncrData struct {
 	Category string `json:"category"`
 	AppID    string `json:"appid"`
 	Key      string `json:"key"`
-	Increase int    `json:"increase"`
+	GlobalID string `json:"globalid"`
+	Increase int    `json:"increase"` //将来去除，为上报端版本兼容暂时保留
 	Time     int64  `json:"time"`
 }
 
@@ -27,13 +28,18 @@ type EnterData struct {
 	Time     int64  `json:"time"`
 }
 
+type QueueElem EnterData
+
 func dateStr() string {
 	return time.Now().Format("20060102")
 }
 
 func counterIncrBy(accConf *config.Accumulator, incr *IncrData) (int64, error) {
 	serverUrl := accConf.ServerUrl
-	category, appid, key, val := incr.Category, incr.AppID, incr.Key, incr.Increase
+	category, appid, key, incrVal := incr.Category, incr.AppID, incr.Key, incr.Increase
+	if incrVal < 1 {
+		incrVal = 1
+	}
 	redisField := fmt.Sprintf("%s:%s", appid, key)
 	redisKey := fmt.Sprintf("%s:%s:%s", accConf.ToCounter, category, dateStr())
 	redisClient := redisutil.GetRedisClient(serverUrl)
@@ -47,7 +53,7 @@ func counterIncrBy(accConf *config.Accumulator, incr *IncrData) (int64, error) {
 			}
 		}
 	}()
-	return redisClient.HIncrBy(redisKey, redisField, val)
+	return redisClient.HIncrBy(redisKey, redisField, incrVal)
 }
 
 func counterSet(accConf *config.Accumulator, enter *EnterData, val int64) error {
@@ -137,6 +143,32 @@ func PVCounter(ctx dotweb.Context) error {
 		}
 		respstr = respFailed
 	}
+
+	importerConf, err := getImporterConf("Counter")
+	if err != nil {
+		respstr = respFailed
+		innerLogger.Error("HttpServer::PVCounter " + err.Error())
+		return nil
+	}
+
+	qelem := getCounterQElem(&incr)
+	if qelem == nil {
+		innerLogger.Error("HttpServer::PVCounter incr -> qelem failed")
+		return nil
+	}
+	if qelem.GlobalID == "" {
+		return nil //前一版接口无此字段，兼容接收但不推队列
+	}
+	qelem.Time = getNowUnixSec() // 以服务器时间为准
+	if data, err := json.Marshal(qelem); err != nil {
+		innerLogger.Error(err.Error())
+		respstr = respFailed
+	} else {
+		_, err = pushQueueData(importerConf, string(data))
+		if err != nil {
+			innerLogger.Error(err.Error())
+		}
+	}
 	return nil
 }
 
@@ -200,4 +232,29 @@ func UVCounter(ctx dotweb.Context) error {
 	respstr = fmt.Sprintf("%d", scard)
 
 	return nil
+}
+
+func getCounterQElem(data interface{}) *QueueElem {
+	var e QueueElem
+	if incr, ok := data.(*IncrData); ok {
+		e = QueueElem{
+			incr.Category,
+			incr.AppID,
+			incr.Key,
+			incr.GlobalID,
+			incr.Time,
+		}
+		return &e
+	} else if enter, ok := data.(*EnterData); ok {
+		e = QueueElem{
+			enter.Category,
+			enter.AppID,
+			enter.Key,
+			enter.GlobalID,
+			enter.Time,
+		}
+		return &e
+	} else {
+		return nil
+	}
 }
