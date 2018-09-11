@@ -8,11 +8,13 @@ import (
 	"TechPlat/datapipe/config"
 	"TechPlat/datapipe/core/exception"
 	"TechPlat/datapipe/counter"
+	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/httpserver"
 	"TechPlat/datapipe/task"
 	"TechPlat/datapipe/util/common"
 	"TechPlat/datapipe/util/log"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -74,8 +76,14 @@ func parseFlag() {
 	configPath = basePath + "/conf/" + runEnv
 
 	//从命令行参数读取配置路径
+	var version bool
+	flag.BoolVar(&version, "v", false, "-v")
 	flag.StringVar(&configFile, "config", "", "配置文件路径")
 	flag.Parse()
+	if version {
+		fmt.Printf("Version: %s, Branch: %s, Build: %s, Build time: %s\n",
+			global.Version, global.Branch, global.CommitID, global.BuildTime)
+	}
 	if configFile == "" {
 		configFile = configPath + "/app.conf"
 	} else {

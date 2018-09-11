@@ -4,7 +4,13 @@ import "github.com/devfeel/dottask"
 
 var TaskService *task.TaskService
 
-func init(){
+var (
+	Version   = ""
+	Branch    = ""
+	CommitID  = ""
+	BuildTime = ""
+)
+
+func init() {
 	TaskService = task.StartNewService()
 }
-

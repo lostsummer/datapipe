@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"fmt"
 
 	"github.com/devfeel/dotweb"
@@ -8,7 +9,8 @@ import (
 
 func Index(ctx dotweb.Context) error {
 	ctx.Response().Header().Set("Content-Type", "text/html; charset=utf-8")
-	ctx.WriteString("welcome to datapipe | version=1")
+	retstr := fmt.Sprintf("welcome to datapipe|version=%s", global.Version)
+	ctx.WriteString(retstr)
 	return nil
 }
 
