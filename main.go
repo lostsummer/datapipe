@@ -83,6 +83,7 @@ func parseFlag() {
 	if version {
 		fmt.Printf("Version: %s, Branch: %s, Build: %s, Build time: %s\n",
 			global.Version, global.Branch, global.CommitID, global.BuildTime)
+		return
 	}
 	if configFile == "" {
 		configFile = configPath + "/app.conf"
