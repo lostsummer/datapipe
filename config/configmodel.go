@@ -89,14 +89,15 @@ type UDPServer struct {
 }
 
 type UDPPortInfo struct {
-	Enable 	 bool 		`xml:"enable,attr"`
-	Name 	 string 	`xml:"name,attr"`
-	Port 	 int		`xml:"port,attr"`
-	Protocol string 	`xml:"protocol,attr"`
+	Enable 	 bool 			`xml:"enable,attr"`
+	Name 	 string 		`xml:"name,attr"`
+	Port 	 int			`xml:"port,attr"`
+	Protocol string 		`xml:"protocol,attr"`
+	Outputadapters string 	`xml:"outputadapters,attr"`
 }
 
 type OutputAdapter struct {
-	Enable bool		`xml:"enable,attr"`
+	Name string 	`xml:"name,attr"`
 	Type string 	`xml:"type,attr"`
 	Url string		`xml:"url,attr"`
 	ToQueue string 	`xml:"toqueue,attr"`

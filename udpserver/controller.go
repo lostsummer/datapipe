@@ -2,14 +2,11 @@ package udpserver
 
 import (
 	"strconv"
+	"strings"
 	"TechPlat/datapipe/udpserver/outputadapter"
 	"TechPlat/datapipe/udpserver/protocol"
 	"TechPlat/datapipe/util/log"
 	"TechPlat/datapipe/config"
-)
-
-const (
-	timeLayout = "2006-01-02 15:04:05.999999"
 )
 
 const (
@@ -64,10 +61,10 @@ func StartServer() {
 	innerLogger.Debug("完成启动UDP日志服务")
 }
 
-func initOutputAdapter() []Adapter {
-	var adapters []Adapter
+func initOutputAdapter() map[string]Adapter {
+	adaptersMap := make(map[string]Adapter)
 	for _, adpConf := range config.CurrentConfig.OutputAdapters {
-		if !adpConf.Enable {
+		if adpConf.Name == "" {
 			continue
 		}
 
@@ -76,12 +73,12 @@ func initOutputAdapter() []Adapter {
 		}
 
 		adapter := Adapter{outputAdapterMap[adpConf.Type], adpConf}
-		adapters = append(adapters, adapter)
+		adaptersMap[adpConf.Name] = adapter
 	}
-	return adapters
+	return adaptersMap
 }
 
-func initUdpServer(outputAdapters []Adapter) {
+func initUdpServer(outputAdaptersMap map[string]Adapter) {
 	for _, portConf := range config.CurrentConfig.UdpServer.UDPPorts {
 		if !portConf.Enable {
 			innerLogger.Debug(portConf.Name + ", UDP端口未开启")
@@ -99,6 +96,7 @@ func initUdpServer(outputAdapters []Adapter) {
 		}
 
 		protocolHandler := protocolHandlerMap[portConf.Protocol]
+		outputAdapters := getOutputAdapters(outputAdaptersMap, portConf.Outputadapters)
 		server, err := GetNewServer(portConf.Port, protocolHandler, outputAdapters)
 		if err != nil {
 			innerLogger.Debug(portConf.Name + ", 创建UDP日志服务实例失败, " + err.Error())
@@ -108,4 +106,29 @@ func initUdpServer(outputAdapters []Adapter) {
 		server.Start()
 		innerLogger.Debug("启动UDP日志服务:" + portConf.Name + ", port=" + strconv.Itoa(portConf.Port) + ", protocol=" + portConf.Protocol)
 	}
+}
+
+func getOutputAdapters(outputAdapterMap map[string]Adapter, outputAdapterConf string) []Adapter {
+	var adapters []Adapter
+
+	if outputAdapterConf == "" {
+		for _,adapter := range outputAdapterMap {
+			adapters = append(adapters, adapter)
+		}
+	} else {
+		adapterNames := strings.Split(outputAdapterConf, "|")
+		for _,name := range adapterNames {
+			if name == "" {
+				continue
+			}
+
+			if _,ok:=outputAdapterMap[name]; !ok {
+				continue
+			}
+
+			adapters = append(adapters, outputAdapterMap[name])
+		}
+	}
+
+	return adapters
 }

@@ -14,39 +14,28 @@ const (
 	defaultTimeLayout = "2006_01_02"
 )
 
-var currentFileRoot = defaultFileRoot
-
 func OutputFileAdapter (conf config.OutputAdapter, appid string, logstr string) {
-	if conf.Url != "" {
-		if strings.HasSuffix(conf.Url, "/") {
-			currentFileRoot = conf.Url
-		} else {
-			currentFileRoot = conf.Url + "/"
-		}
+	logFile := getLogFile(appid, conf.Url)
+	logstr = logstr + "\r\n"
+	writeFile(logFile, logstr)
+}
+
+func getLogFile(appid string, path string) string {
+	if path == "" {
+		path = defaultFileRoot
+	}
+
+	if !strings.HasSuffix(path, "/") {
+		path = path + "/"
 	}
 
 	if appid != "" {
-		writeLogWithApp(appid, logstr)
-	} else {
-		writeLog(logstr)
+		path = path + appid + "/"
 	}
-}
+	os.MkdirAll(path, os.ModePerm)
 
-func writeLog(log string) {
-	os.MkdirAll(currentFileRoot, os.ModePerm)
-	logFile := currentFileRoot + "log_" + time.Now().Format(defaultTimeLayout) + ".log"
-	logstr := log + "\r\n"
-
-	writeFile(logFile, logstr)
-}
-
-func writeLogWithApp(appid string, log string) {
-	logpath := currentFileRoot + appid
-	os.MkdirAll(logpath, os.ModePerm)
-	logFile := logpath + "/log_" + time.Now().Format(defaultTimeLayout) + ".log"
-	logstr := log + "\r\n"
-
-	writeFile(logFile, logstr)
+	logFile := path + "log_" + time.Now().Format(defaultTimeLayout) + ".log"
+	return logFile
 }
 
 func writeFile(logFile string, logstr string) {
