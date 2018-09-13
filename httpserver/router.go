@@ -50,6 +50,8 @@ func InitRoute(server *dotweb.DotWeb) {
 		"ActLog":        {server.HttpServer.Any, "/ActLog", handlers.SoftActionLog},
 		"FrontEndLog":   {server.HttpServer.Any, "/FrontEnd/Log", handlers.FrontEndLog},
 		"LiveDuration":  {server.HttpServer.Any, "/LiveDuration/Data", handlers.LiveDuration},
+		"PageRecords":   {server.HttpServer.Any, "/Mobile/Page", handlers.PageRecordsHandle},
+		"EventRecords":  {server.HttpServer.Any, "/Mobile/Event", handlers.EventRecordsHandle},
 	}
 	var accumulatorRoute = map[string]routeInfo{
 		"PVCounter": {server.HttpServer.Any, "/Counter/PV", handlers.PVCounter},
