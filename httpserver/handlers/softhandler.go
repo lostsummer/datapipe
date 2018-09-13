@@ -70,9 +70,8 @@ func Soft(ctx dotweb.Context) error {
 			qlen, err = pushQueueDataToSQ(importerConf.ServerUrl,
 				softQueueKeyForApp,
 				string(data))
-		} else {
-			qlen, err = pushQueueData(importerConf, string(data))
 		}
+		qlen, err = pushQueueData(importerConf, string(data))
 		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
