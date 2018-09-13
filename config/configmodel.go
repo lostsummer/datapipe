@@ -12,13 +12,15 @@ const (
 
 //代理配置信息
 type AppConfig struct {
-	XMLName        xml.Name   `xml:"config"`
-	Log            Log        `xml:"log"`
-	Redis          Redis      `xml:"redis"`
-	MongoDB        MongoDB    `xml:"mongodb"`
-	Kafka          Kafka      `xml:"kafka"`
-	HttpServer     HttpServer `xml:"httpserver"`
-	Tasks          []TaskInfo `xml:"tasks>task"`
+	XMLName        xml.Name   		`xml:"config"`
+	Log            Log        		`xml:"log"`
+	Redis          Redis      		`xml:"redis"`
+	MongoDB        MongoDB    		`xml:"mongodb"`
+	Kafka          Kafka      		`xml:"kafka"`
+	HttpServer     HttpServer 		`xml:"httpserver"`
+	Tasks          []TaskInfo 		`xml:"tasks>task"`
+	UdpServer 	   UDPServer  		`xml:"udpserver"`
+	OutputAdapters []OutputAdapter	`xml:"outputadapter>adapter"`
 	ImporterMap    map[string]*Importer
 	AccumulatorMap map[string]*Accumulator
 	TaskMap        map[string]*TaskInfo
@@ -79,6 +81,25 @@ type Accumulator struct {
 	ServerUrl  string `xml:"serverurl,attr"`
 	ToCounter  string `xml:"tocounter,attr"`
 	ToSet      string `xml:"toset,attr"`
+}
+
+type UDPServer struct {
+	Enable   bool			`xml:"enable,attr"`
+	UDPPorts []UDPPortInfo	`xml:"server"`
+}
+
+type UDPPortInfo struct {
+	Enable 	 bool 		`xml:"enable,attr"`
+	Name 	 string 	`xml:"name,attr"`
+	Port 	 int		`xml:"port,attr"`
+	Protocol string 	`xml:"protocol,attr"`
+}
+
+type OutputAdapter struct {
+	Enable bool		`xml:"enable,attr"`
+	Type string 	`xml:"type,attr"`
+	Url string		`xml:"url,attr"`
+	ToQueue string 	`xml:"toqueue,attr"`
 }
 
 // HasTrigger 检查是否存在触发器配置
