@@ -2,11 +2,11 @@ package udpserver
 
 import (
 	"strconv"
+	"strings"
 	"TechPlat/datapipe/udpserver/outputadapter"
 	"TechPlat/datapipe/udpserver/protocol"
 	"TechPlat/datapipe/util/log"
 	"TechPlat/datapipe/config"
-	"strings"
 )
 
 const (
