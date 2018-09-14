@@ -13,6 +13,7 @@ import (
 	"TechPlat/datapipe/task"
 	"TechPlat/datapipe/util/common"
 	"TechPlat/datapipe/util/log"
+	"TechPlat/datapipe/udpserver"
 	"flag"
 	"fmt"
 	"os"
@@ -61,9 +62,11 @@ func main() {
 	//异步处理操作系统信号
 	go listenSignal()
 
+	//根据配置启动 udp server, 非阻塞
+	udpserver.StartServer()
+
 	//根据配置启动 http server, 阻塞
 	httpserver.StartServer()
-
 }
 
 func parseFlag() {
@@ -93,7 +96,6 @@ func parseFlag() {
 		}
 	}
 	httpserver.ConfigPath = configPath
-
 }
 
 func listenSignal() {
