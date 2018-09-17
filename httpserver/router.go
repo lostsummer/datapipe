@@ -46,6 +46,7 @@ func InitRoute(server *dotweb.DotWeb) {
 		"PayLog":        {server.HttpServer.Any, "/PayLog/PayLog", handlers.PayLog},
 		"UserLog":       {server.HttpServer.Any, "/UserLog/UserLog", handlers.UserLog},
 		"Soft":          {server.HttpServer.Any, "/Soft", handlers.Soft},
+		"SoftEncrypt":   {server.HttpServer.Any, "/Soft/EncryptInfo", handlers.SoftEncrypt},
 		"SoftActionLog": {server.HttpServer.Any, "/Soft/ActionLog", handlers.SoftActionLog},
 		"ActLog":        {server.HttpServer.Any, "/ActLog", handlers.SoftActionLog},
 		"FrontEndLog":   {server.HttpServer.Any, "/FrontEnd/Log", handlers.FrontEndLog},

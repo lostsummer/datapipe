@@ -11,6 +11,8 @@ process1srvlog() {
     del7daymore $1/innerlogs/
 }
 
-process1srvlog /emoney/datapipe
-process1srvlog /emoney/datapipe_task
+process1srvlog /emoney/dp_api2/datapipe
+process1srvlog /emoney/dp_api2/datapipe_task
+process1srvlog /emoney/dp_aliapi/datapipe2
+process1srvlog /emoney/dp_aliapi/datapipe_task2
 
