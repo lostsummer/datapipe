@@ -55,10 +55,15 @@ func Soft(ctx dotweb.Context) error {
 	}
 	dataMap["PageUrl"] = getFullUrl(ctx)
 	//dataMap["UserAgent"] = getUserAgent(ctx)  //php版本中有，线上.Net版本无
+
 	dataMap["GlobalID"] = getGlobalID(ctx)
-	dataMap["FirstVisitTime"] = getFirstVistTime(ctx)
+	//dataMap["FirstVisitTime"] = getFirstVistTime(ctx) //php版本中有，线上.Net版本无
+
 	dataMap["ClientIP"] = getClientIP(ctx)
 	dataMap["LogID"] = "0" //php版本无， 线上.Net版本有
+
+	//php版本无， 线上.Net版本有
+	dataMap["WriteTime"] = getNowFormatTime()
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::Soft " + err.Error())
