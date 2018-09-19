@@ -4,6 +4,10 @@
 
 datapipe 部署结构变迁参考[wiki](http://git.emoney.cn/techplat/datapipe/wikis/datapipe-deploy-merge)
 
+当前部署的结构简图如下：
+
+![datapipe_new](http://192.168.42.73/techplat/datapipe/uploads/12c241e9cf4942ebeb6f6df82f8fd2f5/datapipe_merge.png)
+
 当前两套 datapipe httpserver+taskserver 都均衡部署于三台万国主机：
 
 1. 172.31.37.8
