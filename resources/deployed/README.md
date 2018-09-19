@@ -14,10 +14,16 @@ datapipe 部署结构变迁参考[wiki](http://git.emoney.cn/techplat/datapipe/w
 
 http://api2.tongji.emoney.cn/ 对应 /emoney/dp_api2
 
-其中 httpserver： /emoney/dp_api2/datapipe
+其中
+
+httpserver： /emoney/dp_api2/datapipe
+
 taskserver: /emoney/dp_api2/datapipe_task
 
 http://aliapi.tongji.emoney.cn/ 对应 /emoney/dp_aliapi
 
-其中 httpserver： /emoney/dp_aliapi/datapipe2
+其中 
+
+httpserver： /emoney/dp_aliapi/datapipe2
+
 taskserver: /emoney/dp_aliapi/datapipe_task2
