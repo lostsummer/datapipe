@@ -96,4 +96,4 @@ httpserver自身运行的配置文件在单独的 dotweb.conf 中
 
 ## 线上部署情况
 
-参考 [](http://git.emoney.cn/techplat/datapipe/tree/master/resources/deployed)
+参考 [git目录](http://git.emoney.cn/techplat/datapipe/tree/master/resources/deployed)
