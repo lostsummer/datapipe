@@ -94,3 +94,6 @@ httpserver自身运行的配置文件在单独的 dotweb.conf 中
 "tcounter" 为redis中计数key前缀
 "toset" 为统计去重用户数（用于UV统计）使用的set的key前缀
 
+## 线上部署情况
+
+参考 [](http://git.emoney.cn/techplat/datapipe/tree/master/resources/deployed)
