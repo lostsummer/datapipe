@@ -1,0 +1,102 @@
+#!/bin/bash
+
+CMD=$1
+TARGET=$2
+PNAME=""
+RUNCMD=""
+
+getruncmd(){
+        case "$1" in
+                "dp1")
+                        RUNCMD="/emoney/dp_api2/datapipe/run.sh"
+                        ;;
+                "dp2")
+                        RUNCMD="/emoney/dp_aliapi/datapipe2/run.sh"
+                        ;;
+                "tk1")
+                        RUNCMD="/emoney/dp_api2/datapipe_task/run.sh"
+                        ;;
+                "tk2")
+                        RUNCMD="/emoney/dp_aliapi/datapipe_task2/run.sh"
+                        ;;
+                *)
+                        echo "usage: dpctl (start|stop|status) (dp1|dp2|tk1|tk2)"
+                        exit 1
+                        ;;
+        esac
+}
+
+getpname(){
+        case "$1" in
+                "dp1")
+                        PNAME="datapipe"
+                        ;;
+                "dp2")
+                        PNAME="datapipe2"
+                        ;;
+                "tk1")
+                        PNAME="datapipe_task"
+                        ;;
+                "tk2")
+                        PNAME="datapipe_task2"
+                        ;;
+                *)
+                        echo "usage: dpctl (start|stop|status) (dp1|dp2|tk1|tk2)"
+                        exit 1
+                        ;;
+        esac
+}
+
+showstatus(){
+        getpname $1
+        PID=$(pgrep -x $PNAME)
+        if [ ! $PID ];then
+                echo "$PNAME is stopped"
+        else
+                echo "$PNAME is running at pid $PID"
+        fi
+}
+
+startdp(){
+        getpname $1
+        getruncmd $1
+        PID=$(pgrep -x $PNAME)
+        if [ ! $PID ];then
+                $RUNCMD
+        else
+                echo "$PNAME is already started, running at $PID"
+                exit 2
+        fi
+}
+
+stopdp(){
+        getpname $1
+        PID=$(pgrep -x $PNAME)
+        if [ ! $PID ];then
+                echo "$PNAME is already stopped"
+                exit 3
+        else
+                echo "stop $PNAME"
+                killall -9 $PNAME
+        fi
+}
+
+case "$CMD" in
+        "status")
+                showstatus $TARGET
+                ;;
+        "start")
+                startdp $TARGET
+                ;;
+        "stop")
+                stopdp $TARGET
+                ;;
+        "restart")
+                stopdp $TARGET
+                startdp $TARGET
+                ;;
+        *)
+                echo "usage: dpctl (start|stop|status) (dp1|dp2|tk1|tk2)"
+                ;;
+esac
+
