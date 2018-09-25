@@ -12,15 +12,15 @@ const (
 
 //代理配置信息
 type AppConfig struct {
-	XMLName        xml.Name   		`xml:"config"`
-	Log            Log        		`xml:"log"`
-	Redis          Redis      		`xml:"redis"`
-	MongoDB        MongoDB    		`xml:"mongodb"`
-	Kafka          Kafka      		`xml:"kafka"`
-	HttpServer     HttpServer 		`xml:"httpserver"`
-	Tasks          []TaskInfo 		`xml:"tasks>task"`
-	UdpServer 	   UDPServer  		`xml:"udpserver"`
-	OutputAdapters []OutputAdapter	`xml:"outputadapter>adapter"`
+	XMLName        xml.Name        `xml:"config"`
+	Log            Log             `xml:"log"`
+	Redis          Redis           `xml:"redis"`
+	MongoDBs       MongoDBs        `xml:"mongodbs"`
+	Kafka          Kafka           `xml:"kafka"`
+	HttpServer     HttpServer      `xml:"httpserver"`
+	Tasks          []TaskInfo      `xml:"tasks>task"`
+	UdpServer      UDPServer       `xml:"udpserver"`
+	OutputAdapters []OutputAdapter `xml:"outputadapter>adapter"`
 	ImporterMap    map[string]*Importer
 	AccumulatorMap map[string]*Accumulator
 	TaskMap        map[string]*TaskInfo
@@ -33,8 +33,12 @@ type Redis struct {
 
 //MongodDB配置
 type MongoDB struct {
+	Name      string `xml:"name,attr"`
 	ServerUrl string `xml:"serverurl,attr"`
 	DBName    string `xml:"dbname,attr"`
+}
+type MongoDBs struct {
+	MongoDBList []MongoDB `xml:"mongodb"`
 }
 
 //kafka配置
@@ -50,10 +54,12 @@ type Log struct {
 //数据模板
 type TaskInfo struct {
 	TaskID        string `xml:"taskid,attr"`
+	Enable        bool   `xml:"enable,attr"`
 	FromServer    string `xml:"fromserver,attr"`
 	FromQueue     string `xml:"fromqueue,attr"`
 	TargetValue   string `xml:"targetvalue,attr"`
 	TargetType    string `xml:"targettype,attr"`
+	TargetName    string `xml:"targetname,attr"`
 	TriggerServer string `xml:"triggerserver,attr"`
 	TriggerQueue  string `xml:"triggerqueue,attr"`
 	CounterServer string `xml:"counterserver,attr"` //计数器server
@@ -84,23 +90,23 @@ type Accumulator struct {
 }
 
 type UDPServer struct {
-	Enable   bool			`xml:"enable,attr"`
-	UDPPorts []UDPPortInfo	`xml:"server"`
+	Enable   bool          `xml:"enable,attr"`
+	UDPPorts []UDPPortInfo `xml:"server"`
 }
 
 type UDPPortInfo struct {
-	Enable 	 bool 			`xml:"enable,attr"`
-	Name 	 string 		`xml:"name,attr"`
-	Port 	 int			`xml:"port,attr"`
-	Protocol string 		`xml:"protocol,attr"`
-	Outputadapters string 	`xml:"outputadapters,attr"`
+	Enable         bool   `xml:"enable,attr"`
+	Name           string `xml:"name,attr"`
+	Port           int    `xml:"port,attr"`
+	Protocol       string `xml:"protocol,attr"`
+	Outputadapters string `xml:"outputadapters,attr"`
 }
 
 type OutputAdapter struct {
-	Name string 	`xml:"name,attr"`
-	Type string 	`xml:"type,attr"`
-	Url string		`xml:"url,attr"`
-	ToQueue string 	`xml:"toqueue,attr"`
+	Name    string `xml:"name,attr"`
+	Type    string `xml:"type,attr"`
+	Url     string `xml:"url,attr"`
+	ToQueue string `xml:"toqueue,attr"`
 }
 
 // HasTrigger 检查是否存在触发器配置
