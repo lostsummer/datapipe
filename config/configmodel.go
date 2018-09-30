@@ -60,8 +60,10 @@ type TaskInfo struct {
 	TargetValue   string `xml:"targetvalue,attr"`
 	TargetType    string `xml:"targettype,attr"`
 	TargetName    string `xml:"targetname,attr"`
+	TargetFilter  string `xml:"targetfilter,attr"`
 	TriggerServer string `xml:"triggerserver,attr"`
 	TriggerQueue  string `xml:"triggerqueue,attr"`
+	TriggerFilter string `xml:"triggerfilter,attr"`
 	CounterServer string `xml:"counterserver,attr"` //计数器server
 	CounterKey    string `xml:"counterkey,attr"`    //计数器key
 }
@@ -109,12 +111,22 @@ type OutputAdapter struct {
 	ToQueue string `xml:"toqueue,attr"`
 }
 
-// HasTrigger 检查是否存在触发器配置
+// 检查是否存在触发器配置
 func (t *TaskInfo) HasTrigger() bool {
 	return t.TriggerServer != "" && t.TriggerQueue != ""
 }
 
-// HasCounter 检查是否存在计数器配置
+// 检查是否存在触发器过滤字段配置
+func (t *TaskInfo) HasTriggerFilter() bool {
+	return t.TriggerFilter != ""
+}
+
+// 检查是否存在写入目标过滤字段配置
+func (t *TaskInfo) HasTargetFilter() bool {
+	return t.TargetFilter != ""
+}
+
+// 检查是否存在计数器配置
 func (t *TaskInfo) HasCounter() bool {
 	return t.CounterServer != "" && t.CounterKey != ""
 }
