@@ -3,31 +3,24 @@ package tasks
 import (
 	"TechPlat/datapipe/config"
 	"TechPlat/datapipe/const/log"
-	"TechPlat/datapipe/counter"
 	"TechPlat/datapipe/repository/impl"
-	"TechPlat/datapipe/trigger"
 	"TechPlat/datapipe/util/log"
 
 	"github.com/devfeel/dottask"
 )
 
-//将queue获取的数据存入mongodb
-func MongoDBHandler(ctx *task.TaskContext) error {
-	title := "Tasks:MongoDBHandler"
-	taskConf := ctx.TaskData.(*config.TaskInfo)
+type MongoDBPusher PusherBase
 
-	if taskConf.Enable == false {
-		return nil
-	}
+const (
+	mongodbLogTitle = "Tasks:MongDBHandler"
+)
 
-	//get queue data
-	val, err := getQueueData(taskConf)
-	if err != nil {
-		logger.Log(title+":getRedisData error -> "+err.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
-		return err
-	}
-	logger.Log(title+":getRedisData -> "+val, taskConf.TaskID, logdefine.LogLevel_Debug)
+func (m MongoDBPusher) LogTitle() string {
+	return m.Title
+}
 
+func (m MongoDBPusher) Push(taskConf *config.TaskInfo, val string) error {
+	title := m.Title
 	mongoHandler := new(impl.MongoHandler)
 	mongoName := taskConf.TargetName
 	var mongoConf *config.MongoDB
@@ -36,39 +29,26 @@ func MongoDBHandler(ctx *task.TaskContext) error {
 			mongoConf = &m
 		}
 	}
+
+	// 今后配置检查提到外部
 	if mongoConf != nil {
 		mongoHandler.SetConn(mongoConf.ServerUrl, mongoConf.DBName)
 	} else {
 		logger.Log(title+":GetConfig no "+mongoName+" define", taskConf.TaskID, logdefine.LogLevel_Error)
-		return nil
+		return NotConfigError
 	}
 	//insert data to mongo
-	err = mongoHandler.InsertJsonData(taskConf.TargetValue, val)
+	err := mongoHandler.InsertJsonData(taskConf.TargetValue, val)
 	if err != nil {
 		logger.Log(title+":InsertJsonData ["+val+"] error -> "+err.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
-	} else {
-		logger.Log(title+":InsertJsonData success ->["+val+"]", taskConf.TaskID, logdefine.LogLevel_Debug)
+		return err
 	}
+	logger.Log(title+":InsertJsonData success ->["+val+"]", taskConf.TaskID, logdefine.LogLevel_Debug)
+	return nil
+}
 
-	//deal trigger
-	if err == nil && taskConf.HasTrigger() {
-		err = trigger.SendSignal(taskConf.TriggerServer, taskConf.TriggerQueue, val)
-		if err != nil {
-			logger.Log(title+":SendTriggerSignal error -> ["+val+"] "+err.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
-		} else {
-			logger.Log(title+":SendTriggerSignal success -> ["+val+"]", taskConf.TaskID, logdefine.LogLevel_Debug)
-		}
-	}
-
-	//deal counter
-	if err == nil && taskConf.HasCounter() {
-		err = counter.Count(taskConf.CounterServer, taskConf.CounterKey)
-		if err != nil {
-			logger.Log(title+":Counter error -> "+err.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
-		} else {
-			logger.Log(title+":Counter success", taskConf.TaskID, logdefine.LogLevel_Debug)
-
-		}
-	}
+//将queue获取的数据存入mongodb
+func MongoDBHandler(ctx *task.TaskContext) error {
+	handler(ctx, MongoDBPusher{mongodbLogTitle})
 	return nil
 }
