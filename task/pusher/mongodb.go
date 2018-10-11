@@ -27,7 +27,7 @@ func (m MongoDBPusher) Push(taskConf *config.TaskInfo, val string) error {
 
 	// 今后配置检查提到外部
 	if mongoConf != nil {
-		mongoHandler.SetConn(mongoConf.ServerUrl, mongoConf.DBName)
+		mongoHandler.SetConn(mongoConf.ServerUrl, mongoConf.DB)
 	} else {
 		logger.Log(title+":GetConfig no "+mongoName+" define", taskConf.TaskID, logdefine.LogLevel_Error)
 		return global.NotConfigError

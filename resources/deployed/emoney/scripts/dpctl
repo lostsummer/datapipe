@@ -51,9 +51,9 @@ showstatus(){
         getpname $1
         PID=$(pgrep -x $PNAME)
         if [ ! $PID ];then
-                echo "$PNAME is stopped"
+                echo -e "$PNAME\t is stopped"
         else
-                echo "$PNAME is running at pid $PID"
+                echo -e "$PNAME\t is running at pid $PID"
         fi
 }
 

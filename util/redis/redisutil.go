@@ -165,3 +165,10 @@ func (rc *RedisClient) SCard(key string) (int64, error) {
 	ret, err := redis.Int64(conn.Do("SCARD", key))
 	return ret, err
 }
+
+func (rc *RedisClient) Select(db int) error {
+	conn := rc.pool.Get()
+	defer conn.Close()
+	_, err := redis.Int64(conn.Do("SELECT", db))
+	return err
+}

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"TechPlat/datapipe/global"
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
@@ -12,6 +11,8 @@ import (
 	"time"
 
 	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/global"
+	"TechPlat/datapipe/queue"
 	"TechPlat/datapipe/util/log"
 	"TechPlat/datapipe/util/redis"
 
@@ -224,8 +225,12 @@ func getAgentBrowser(ua string) string {
 
 // pushQueueData push data to redis queue
 func pushQueueData(importerConf *config.Importer, val string) (int64, error) {
-	server, queue := importerConf.ServerUrl, importerConf.ToQueue
-	return pushQueueDataToSQ(server, queue, val)
+	q := &queue.Queue{
+		importerConf.ServerUrl,
+		0,
+		importerConf.ToQueue,
+	}
+	return q.Push(val)
 }
 
 // args expose server and queue

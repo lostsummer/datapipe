@@ -15,4 +15,5 @@ const (
 	LogTitle_HttpHandler    = "Tasks:HttpHandler"
 	LogTitle_KafkaHandler   = "Tasks:KafkaHandler"
 	LogTitle_MongoDBHandler = "Tasks:MongDBHandler"
+	LogTitle_RedisHandler   = "Tasks:RedisHandler"
 )

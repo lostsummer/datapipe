@@ -4,11 +4,10 @@ import (
 	"TechPlat/datapipe/config"
 	"TechPlat/datapipe/const/log"
 	"TechPlat/datapipe/counter"
-	"TechPlat/datapipe/global"
+	"TechPlat/datapipe/queue"
 	"TechPlat/datapipe/task/pusher"
 	"TechPlat/datapipe/trigger"
 	"TechPlat/datapipe/util/log"
-	"TechPlat/datapipe/util/redis"
 	"encoding/json"
 	"strings"
 
@@ -25,12 +24,12 @@ func init() {
 
 // getQueueData get queue data from redis
 func getQueueData(taskConf *config.TaskInfo) (string, error) {
-	redisClient := redisutil.GetRedisClient(taskConf.FromServer)
-	if redisClient == nil {
-		return "", global.NotConfigError
+	q := &queue.Queue{
+		taskConf.FromServer,
+		0,
+		taskConf.FromQueue,
 	}
-	val, err := redisClient.BRPop(taskConf.FromQueue)
-	return val, err
+	return q.Pop()
 }
 
 // 暂时支持单个string 类型字段的完全匹配, "|" 分隔多个匹配值
@@ -121,6 +120,8 @@ func CreateHandler(taskType string) task.TaskHandle {
 		p = pusher.KafkaPusher{}
 	case config.Target_Http:
 		p = pusher.HttpPusher{}
+	case config.Target_Redis:
+		p = pusher.RedisPusher{}
 	default:
 		return nil
 	}

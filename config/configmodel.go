@@ -8,13 +8,14 @@ const (
 	Target_MongoDB = "mongodb"
 	Target_Http    = "http"
 	Target_Kafka   = "kafka"
+	Target_Redis   = "redis"
 )
 
 //代理配置信息
 type AppConfig struct {
 	XMLName        xml.Name        `xml:"config"`
 	Log            Log             `xml:"log"`
-	Redis          Redis           `xml:"redis"`
+	Redises        Redises         `xml:"redises"`
 	MongoDBs       MongoDBs        `xml:"mongodbs"`
 	Kafka          Kafka           `xml:"kafka"`
 	HttpServer     HttpServer      `xml:"httpserver"`
@@ -28,17 +29,24 @@ type AppConfig struct {
 
 //Redis配置
 type Redis struct {
-	KeyCommonPre string `xml:"keycommonpre,attr"`
+	Name      string `xml:"name,attr"`
+	ServerUrl string `xml:"serverurl,attr"`
+	DB        string `xml:"db,attr"`
 }
 
 //MongodDB配置
 type MongoDB struct {
 	Name      string `xml:"name,attr"`
 	ServerUrl string `xml:"serverurl,attr"`
-	DBName    string `xml:"dbname,attr"`
+	DB        string `xml:"db,attr"`
 }
+
 type MongoDBs struct {
 	MongoDBList []MongoDB `xml:"mongodb"`
+}
+
+type Redises struct {
+	RedisList []Redis `xml:"redis"`
 }
 
 //kafka配置
