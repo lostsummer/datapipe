@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -48,7 +49,7 @@ func Soft(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" || params["optype"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::Soft " + LessParamError.Error())
+		innerLogger.Error("HttpServer::Soft " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {
@@ -122,7 +123,7 @@ func SoftEncrypt(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::SoftEncrypt " + LessParamError.Error())
+		innerLogger.Error("HttpServer::SoftEncrypt " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {

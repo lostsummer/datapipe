@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -25,7 +26,7 @@ func adbase(ctx dotweb.Context, name string) error {
 	}
 	if params["appid"] == "" || params["logtype"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::" + name + " " + LessParamError.Error())
+		innerLogger.Error("HttpServer::" + name + " " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {

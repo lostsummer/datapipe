@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"reflect"
 	"strconv"
@@ -45,7 +46,7 @@ func FrontEndLog(ctx dotweb.Context) error {
 
 	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
-		innerLogger.Error("HttpServer::FrontEndLog " + LessParamError.Error())
+		innerLogger.Error("HttpServer::FrontEndLog " + global.LessParamError.Error())
 		respstr = respFailed
 		return nil
 	}

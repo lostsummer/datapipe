@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/config"
 	"TechPlat/datapipe/util/redis"
 	"encoding/json"
@@ -44,7 +45,7 @@ func counterIncrBy(accConf *config.Accumulator, incr *IncrData) (int64, error) {
 	redisKey := fmt.Sprintf("%s:%s:%s", accConf.ToCounter, category, dateStr())
 	redisClient := redisutil.GetRedisClient(serverUrl)
 	if redisClient == nil {
-		return -1, GetRedisError
+		return -1, global.GetRedisError
 	}
 	defer func() {
 		if p := recover(); p != nil {
@@ -63,7 +64,7 @@ func counterSet(accConf *config.Accumulator, enter *EnterData, val int64) error 
 	redisField := fmt.Sprintf("%s:%s", appid, key)
 	redisClient := redisutil.GetRedisClient(serverUrl)
 	if redisClient == nil {
-		return GetRedisError
+		return global.GetRedisError
 	}
 	defer func() {
 		if p := recover(); p != nil {
@@ -81,7 +82,7 @@ func addToSet(accConf *config.Accumulator, enter *EnterData) (int64, error) {
 	redisKey := fmt.Sprintf("%s:%s:%s:%s:%s", accConf.ToSet, category, dateStr(), appid, key)
 	redisClient := redisutil.GetRedisClient(serverUrl)
 	if redisClient == nil {
-		return -1, GetRedisError
+		return -1, global.GetRedisError
 	}
 	defer func() {
 		if p := recover(); p != nil {
@@ -113,7 +114,7 @@ func PVCounter(ctx dotweb.Context) error {
 
 	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
-		innerLogger.Error("HttpServer::PVCounter " + LessParamError.Error())
+		innerLogger.Error("HttpServer::PVCounter " + global.LessParamError.Error())
 		respstr = respFailed
 		return nil
 	}
@@ -188,7 +189,7 @@ func UVCounter(ctx dotweb.Context) error {
 
 	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
-		innerLogger.Error("HttpServer::UVCounter " + LessParamError.Error())
+		innerLogger.Error("HttpServer::UVCounter " + global.LessParamError.Error())
 		respstr = respFailed
 		return nil
 	}

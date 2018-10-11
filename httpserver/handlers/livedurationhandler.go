@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -32,7 +33,7 @@ func LiveDuration(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" || params["uid"] == "" || params["classid"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::LiveDuration " + LessParamError.Error())
+		innerLogger.Error("HttpServer::LiveDuration " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {

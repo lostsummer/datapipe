@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"reflect"
 	"strconv"
@@ -69,7 +70,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 
 	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
-		innerLogger.Error("HttpServer::SoftActionLog " + LessParamError.Error())
+		innerLogger.Error("HttpServer::SoftActionLog " + global.LessParamError.Error())
 		respstr = respFailed
 		return nil
 	}

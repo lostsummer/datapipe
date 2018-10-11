@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
@@ -15,7 +16,6 @@ import (
 	"TechPlat/datapipe/util/redis"
 
 	"github.com/devfeel/dotweb"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -29,13 +29,6 @@ const (
 	comCookieDomain    = "emoney.cn"
 	cookieValidSeconds = 311040000
 	postActionDataKey  = "ActionData"
-)
-
-var (
-	NotConfigError = errors.New("not exists such config info")
-	LessParamError = errors.New("less param")
-	GetRedisError  = errors.New("get rediscli failed")
-	EscapeError    = errors.New("invalid URL escape")
 )
 
 var (
@@ -102,7 +95,7 @@ func getImporterConf(name string) (*config.Importer, error) {
 	if exist {
 		return impConf, nil
 	} else {
-		return nil, NotConfigError
+		return nil, global.NotConfigError
 	}
 }
 
@@ -112,7 +105,7 @@ func getAccumulatorConf(name string) (*config.Accumulator, error) {
 	if exist {
 		return accConf, nil
 	} else {
-		return nil, NotConfigError
+		return nil, global.NotConfigError
 	}
 }
 
@@ -239,7 +232,7 @@ func pushQueueData(importerConf *config.Importer, val string) (int64, error) {
 func pushQueueDataToSQ(server, queue, val string) (int64, error) {
 	redisClient := redisutil.GetRedisClient(server)
 	if redisClient == nil {
-		return -1, GetRedisError
+		return -1, global.GetRedisError
 	}
 	defer func() {
 		if p := recover(); p != nil {
@@ -320,7 +313,7 @@ func URLUnescape(s string) (string, error) {
 				if len(s) > 3 {
 					s = s[:3]
 				}
-				return "", EscapeError
+				return "", global.EscapeError
 			}
 			i += 3
 		case '+':

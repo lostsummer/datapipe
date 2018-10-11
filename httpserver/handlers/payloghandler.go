@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"strconv"
 
 	"github.com/devfeel/dotweb"
@@ -21,7 +22,7 @@ func PayLog(ctx dotweb.Context) error {
 	}
 	if params["appid"] == "" || params["logtype"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::PayLog " + LessParamError.Error())
+		innerLogger.Error("HttpServer::PayLog " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {

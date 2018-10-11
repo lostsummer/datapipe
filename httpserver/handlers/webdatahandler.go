@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -38,7 +39,7 @@ func WebData(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" || params["datakey"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::WebData " + LessParamError.Error())
+		innerLogger.Error("HttpServer::WebData " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {

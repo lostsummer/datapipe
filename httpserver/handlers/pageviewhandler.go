@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -37,7 +38,7 @@ func PageView(ctx dotweb.Context) error {
 	}
 	if params["code"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::PageView " + LessParamError.Error())
+		innerLogger.Error("HttpServer::PageView " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {

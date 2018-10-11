@@ -1,32 +1,27 @@
-package tasks
+package pusher
 
 import (
 	"TechPlat/datapipe/component/kafka"
 	"TechPlat/datapipe/config"
 	"TechPlat/datapipe/const/log"
+	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/util/log"
 	"strconv"
-
-	"github.com/devfeel/dottask"
 )
 
-type KafkaPusher PusherBase
-
-const (
-	kafkaLogTitle = "Tasks:KafkaHandler"
-)
+type KafkaPusher struct{}
 
 func (k KafkaPusher) LogTitle() string {
-	return k.Title
+	return logdefine.LogTitle_KafkaHandler
 }
 
 func (k KafkaPusher) Push(taskConf *config.TaskInfo, val string) error {
-	title := k.Title
+	title := k.LogTitle()
 	// 今后将检查配置的逻辑移至外部，启动加载时检查一次
 	kafkaServerUrl := config.GetKafkaServerUrl()
 	if kafkaServerUrl == "" {
 		logger.Log(title+":GetKafkaServerUrl no config kafkaServerUrl", taskConf.TaskID, logdefine.LogLevel_Error)
-		return NotConfigError
+		return global.NotConfigError
 	}
 	partition, offset, kafkaErr := kafka.SendMessage(kafkaServerUrl, taskConf.TargetValue, val)
 	if kafkaErr != nil {
@@ -38,11 +33,4 @@ func (k KafkaPusher) Push(taskConf *config.TaskInfo, val string) error {
 			"]", taskConf.TaskID, logdefine.LogLevel_Debug)
 	}
 	return nil
-}
-
-// KafkaHandler storage message to kafka
-func KafkaHandler(ctx *task.TaskContext) error {
-	handler(ctx, KafkaPusher{kafkaLogTitle})
-	return nil
-
 }

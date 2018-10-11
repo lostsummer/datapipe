@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"strconv"
 
 	"github.com/devfeel/dotweb"
@@ -22,7 +23,7 @@ func userlogbase(ctx dotweb.Context, name string) error {
 	jsondata := ctx.Request().PostBody()
 	if params["appid"] == "" || params["logtype"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::" + name + " " + LessParamError.Error())
+		innerLogger.Error("HttpServer::" + name + " " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {

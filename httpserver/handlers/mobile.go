@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"fmt"
 
@@ -64,7 +65,7 @@ const (
 func PageRecordsHandle(ctx dotweb.Context) error {
 	respstr := respFailed
 	defer func() {
-		innerLogger.Info("HttpServer::EventRecords")
+		innerLogger.Info("HttpServer::PageRecords")
 		ctx.WriteString(respstr)
 	}()
 
@@ -77,7 +78,7 @@ func PageRecordsHandle(ctx dotweb.Context) error {
 
 	inputJson := ctx.PostFormValue(postRecsKey)
 	if inputJson == "" {
-		innerLogger.Error("HttpServer::PageRecords " + LessParamError.Error())
+		innerLogger.Error("HttpServer::PageRecords " + global.LessParamError.Error())
 		respstr = respFailed
 		return nil
 	}
@@ -138,7 +139,7 @@ func EventRecordsHandle(ctx dotweb.Context) error {
 
 	inputJson := ctx.PostFormValue(postRecsKey)
 	if inputJson == "" {
-		innerLogger.Error("HttpServer::EventRecords " + LessParamError.Error())
+		innerLogger.Error("HttpServer::EventRecords " + global.LessParamError.Error())
 		respstr = respFailed
 		return nil
 	}

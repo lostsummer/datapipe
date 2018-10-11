@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -40,7 +41,7 @@ func PageClick(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" || params["clickkey"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::PageClick " + LessParamError.Error())
+		innerLogger.Error("HttpServer::PageClick " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {
