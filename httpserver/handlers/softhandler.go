@@ -9,10 +9,6 @@ import (
 	"github.com/devfeel/dotweb"
 )
 
-const (
-	defaultSoftQueueKeyForApp = "EMoney.DataPipe:SoftLog_ForApp"
-)
-
 var softJsonKeys = [...]string{
 	"App",
 	"Version",
@@ -84,25 +80,6 @@ func Soft(ctx dotweb.Context) error {
 	} else {
 		var qlen int64
 		var err error
-		if params["remark"] == "ShowUnInstallBK" {
-			importerConf_, err := getImporterConf("SoftLogForApp")
-			if err != nil { // no SoftLogApp importer config
-				qlen, err = pushQueueDataToSQ(importerConf.ServerUrl,
-					defaultSoftQueueKeyForApp,
-					string(data))
-			} else {
-				qlen, err = pushQueueData(importerConf_, string(data))
-			}
-			if err != nil {
-				innerLogger.Error("HttpServer::Soft push queue data failed!")
-				if err != nil {
-					innerLogger.Error(err.Error())
-				}
-				respstr = respFailed
-				return nil
-
-			}
-		}
 		qlen, err = pushQueueData(importerConf, string(data))
 		if err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
