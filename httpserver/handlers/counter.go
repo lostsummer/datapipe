@@ -17,8 +17,9 @@ type IncrData struct {
 	AppID    string `json:"appid"`
 	Key      string `json:"key"`
 	GlobalID string `json:"globalid"`
-	Increase int    `json:"increase"` //将来去除，为上报端版本兼容暂时保留
-	Time     int64  `json:"time"`
+	//Increase int    `json:"increase"` //将来去除，为上报端版本兼容暂时保留
+	Uid  string `json:"uid"`
+	Time int64  `json:"time"`
 }
 
 type EnterData struct {
@@ -26,6 +27,7 @@ type EnterData struct {
 	AppID    string `json:"appid"`
 	Key      string `json:"key"`
 	GlobalID string `json:"globalid"`
+	Uid      string `json:"uid"`
 	Time     int64  `json:"time"`
 }
 
@@ -37,10 +39,8 @@ func dateStr() string {
 
 func counterIncrBy(accConf *config.Accumulator, incr *IncrData) (int64, error) {
 	serverUrl := accConf.ServerUrl
-	category, appid, key, incrVal := incr.Category, incr.AppID, incr.Key, incr.Increase
-	if incrVal < 1 {
-		incrVal = 1
-	}
+	category, appid, key := incr.Category, incr.AppID, incr.Key
+	incrVal := 1
 	redisField := fmt.Sprintf("%s:%s", appid, key)
 	redisKey := fmt.Sprintf("%s:%s:%s", accConf.ToCounter, category, dateStr())
 	redisClient := redisutil.GetRedisClient(serverUrl)
@@ -243,6 +243,7 @@ func getCounterQElem(data interface{}) *QueueElem {
 			incr.AppID,
 			incr.Key,
 			incr.GlobalID,
+			incr.Uid,
 			incr.Time,
 		}
 		return &e
@@ -252,6 +253,7 @@ func getCounterQElem(data interface{}) *QueueElem {
 			enter.AppID,
 			enter.Key,
 			enter.GlobalID,
+			enter.Uid,
 			enter.Time,
 		}
 		return &e

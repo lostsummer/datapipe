@@ -10,15 +10,16 @@ host = '192.168.8.211'
 post_key = 'ActionData'
 
 msg_pv = {
-    "category": "xxxxxxx",
+    "category": "LivPV",
     "appid": "nnnnnnnn",
     "key": "xxx-xxx-xxx",
-    "increase": 1,
+    "globalid": "55310D34-C95C-76FA-4255-BB5A8AE726AA",
+    "uid": "test_user",
     "time": 1532934840
 }
 
 msg_uv = {
-    "category": "xxxxxxx",
+    "category": "LiveUV",
     "appid": "nnnnnnnn",
     "key": "xxx-xxx-xxx",
     "globalid": "55310D34-C95C-76FA-4255-BB5A8AE726AA",
