@@ -4,9 +4,7 @@ import (
 	"TechPlat/datapipe/config"
 	"TechPlat/datapipe/const/log"
 	"TechPlat/datapipe/counter"
-	"TechPlat/datapipe/queue"
-	"TechPlat/datapipe/task/pusher"
-	"TechPlat/datapipe/trigger"
+	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/util/log"
 	"encoding/json"
 	"strings"
@@ -20,16 +18,6 @@ var (
 
 func init() {
 	innerLogger = logger.GetInnerLogger()
-}
-
-// getQueueData get queue data from redis
-func getQueueData(taskConf *config.TaskInfo) (string, error) {
-	q := &queue.Queue{
-		taskConf.FromServer,
-		0,
-		taskConf.FromQueue,
-	}
-	return q.Pop()
 }
 
 // 暂时支持单个string 类型字段的完全匹配, "|" 分隔多个匹配值
@@ -62,73 +50,63 @@ func matchFilter(val string, fltStr string) bool {
 	return false
 }
 
-func handlerWork(ctx *task.TaskContext, pusher pusher.Pusher) error {
-	title := pusher.LogTitle()
+func Handler(ctx *task.TaskContext) error {
 	taskConf := ctx.TaskData.(*config.TaskInfo)
-	// 今后开关加载提到外部
-	if taskConf.Enable == false {
-		return nil
+	id := taskConf.ID
+	source, exist := config.CurrentConfig.TaskSourceMap[id]
+	if !exist {
+		logger.Log("no source exist!", taskConf.ID, logdefine.LogLevel_Error)
+		return global.NotConfigError
+	}
+	target, exist := config.CurrentConfig.TaskTargetMap[id]
+	if !exist {
+		logger.Log("no target exist!", taskConf.ID, logdefine.LogLevel_Error)
+		return global.NotConfigError
 	}
 
-	val, err := getQueueData(taskConf)
+	val, err := source.Pop()
 	if err != nil {
-		logger.Log(title+":getRedisData error -> "+err.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
+		logger.Log("get source error -> "+err.Error(), taskConf.ID, logdefine.LogLevel_Error)
 		return err
 	}
 
-	logger.Log(title+":getRedisData -> "+val, taskConf.TaskID, logdefine.LogLevel_Debug)
-
-	// 处理 target, 当前逻辑是返回错误不影响后续工作
-	if taskConf.HasTargetFilter() && !matchFilter(val, taskConf.TargetFilter) {
-		logger.Log(title+":Do not insert JsonData  -> ["+val+"] not match filter", taskConf.TaskID, logdefine.LogLevel_Debug)
+	// 处理 target, push不成功终止后续工作
+	if taskConf.HasTargetFilter() && !matchFilter(val, taskConf.Target.Filter) {
+		logger.Log("do not insert data  -> ["+val+"] not match filter", taskConf.ID, logdefine.LogLevel_Debug)
 	} else {
-		err = pusher.Push(taskConf, val)
+		_, err := target.Push(val)
+		if err != nil {
+			logger.Log("insert data ["+val+"] error -> "+err.Error(), taskConf.ID, logdefine.LogLevel_Error)
+			return nil
+		}
+		logger.Log("insert data success ->["+val+"]", taskConf.ID, logdefine.LogLevel_Debug)
 	}
 
 	// 处理 trigger, 当前逻辑是返回错误不影响后续工作
 	if taskConf.HasTrigger() {
-		if taskConf.HasTriggerFilter() && !matchFilter(val, taskConf.TriggerFilter) {
-			logger.Log(title+":Do not send TriggerSignal -> ["+val+"] not match filter", taskConf.TaskID, logdefine.LogLevel_Debug)
-		}
-		err = trigger.SendSignal(taskConf.TriggerServer, taskConf.TriggerQueue, val)
-		if err != nil {
-			logger.Log(title+":SendTriggerSignal error -> ["+val+"] "+err.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
+		trigger := config.CurrentConfig.TaskTriggerMap[id]
+		if taskConf.HasTriggerFilter() && !matchFilter(val, taskConf.Trigger.Filter) {
+			logger.Log("do not trigger data  -> ["+val+"] not match filter", taskConf.ID, logdefine.LogLevel_Debug)
 		} else {
-			logger.Log(title+":SendTriggerSignal success -> ["+val+"]", taskConf.TaskID, logdefine.LogLevel_Debug)
+			_, err := trigger.Push(val)
+			if err != nil {
+				return nil
+			}
+			logger.Log("trigger data success ->["+val+"]", taskConf.ID, logdefine.LogLevel_Debug)
 		}
+
 	}
 
 	// 处理 counter, 当前逻辑是返回错误不影响后续工作
 	if taskConf.HasCounter() {
-		err = counter.Count(taskConf.CounterServer, taskConf.CounterKey)
+		err = counter.Count(taskConf.Counter.GetServer(), taskConf.Counter.Key)
 		if err != nil {
-			logger.Log(title+":Counter error -> "+err.Error(), taskConf.TaskID, logdefine.LogLevel_Error)
+			logger.Log("Counter error -> "+err.Error(), taskConf.ID, logdefine.LogLevel_Error)
 		} else {
-			logger.Log(title+":Counter success", taskConf.TaskID, logdefine.LogLevel_Debug)
+			logger.Log("Counter success", taskConf.ID, logdefine.LogLevel_Debug)
 		}
 	}
 
-	return err
-}
-
-func CreateHandler(taskType string) task.TaskHandle {
-	var p pusher.Pusher
-	switch taskType {
-	case config.Target_MongoDB:
-		p = pusher.MongoDBPusher{}
-	case config.Target_Kafka:
-		p = pusher.KafkaPusher{}
-	case config.Target_Http:
-		p = pusher.HttpPusher{}
-	case config.Target_Redis:
-		p = pusher.RedisPusher{}
-	default:
-		return nil
-	}
-	return func(ctx *task.TaskContext) error {
-		handlerWork(ctx, p)
-
-		//适应looptask
-		return nil
-	}
+	//适应looptask
+	return nil
 }

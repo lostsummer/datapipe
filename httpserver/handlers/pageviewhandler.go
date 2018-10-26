@@ -45,12 +45,6 @@ func PageView(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::PageView code=[" + params["code"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf("PageView")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::PageView " + err.Error())
-		return nil
-	}
 	dataMap := make(map[string]string)
 	for _, k := range pageViewJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
@@ -63,9 +57,13 @@ func PageView(ctx dotweb.Context) error {
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::PageView " + err.Error())
-		return nil
 	} else {
-		qlen, err := pushQueueData(importerConf, string(data))
+		target, err := getImporterTarget("PageView")
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		qlen, err := target.Push(string(data))
 		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
@@ -75,6 +73,6 @@ func PageView(ctx dotweb.Context) error {
 			}
 			respstr = respFailed
 		}
-		return nil
 	}
+	return nil
 }

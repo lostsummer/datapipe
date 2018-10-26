@@ -37,13 +37,6 @@ func FrontEndLog(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	importerConf, err := getImporterConf("FrontEndLog")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::FrontEndLog " + err.Error())
-		return nil
-	}
-
 	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
 		innerLogger.Error("HttpServer::FrontEndLog " + global.LessParamError.Error())
@@ -57,7 +50,7 @@ func FrontEndLog(ctx dotweb.Context) error {
 	datajson = strings.Replace(datajson, "\n", "", 1)
 
 	var actionData []FELog
-	err = json.Unmarshal([]byte(datajson), &actionData)
+	err := json.Unmarshal([]byte(datajson), &actionData)
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::FrontEndLog fail to parse post json actionData: " +
@@ -80,9 +73,13 @@ func FrontEndLog(ctx dotweb.Context) error {
 		if data, err := json.Marshal(dataMap); err != nil {
 			respstr = respFailed
 			innerLogger.Error("HttpServer::FrontEndLog " + err.Error())
-			return nil
 		} else {
-			qlen, err := pushQueueData(importerConf, string(data))
+			target, err := getImporterTarget("FrontEndLog")
+			if err != nil {
+				panic(err)
+				return nil
+			}
+			qlen, err := target.Push(string(data))
 			if qlen > 0 && err == nil {
 				respstr = strconv.FormatInt(qlen, 10)
 			} else {

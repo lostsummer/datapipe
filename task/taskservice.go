@@ -29,14 +29,8 @@ const (
 func LoadTasks(service *task.TaskService) {
 	innerLogger.Info("Task::RegisterTask begin...")
 	for _, v := range config.CurrentConfig.TaskMap {
-		taskHandler := handler.CreateHandler(v.TargetType)
-		if taskHandler != nil {
-			service.CreateLoopTask(v.TaskID, true, taskDueTime,
-				taskInterval, taskHandler, v)
-		} else {
-			innerLogger.Error("Task::CreateTask fail to create task type " +
-				v.TargetType)
-		}
+		service.CreateLoopTask(v.ID, true,
+			taskDueTime, taskInterval, handler.Handler, v)
 	}
 
 	//load queue task

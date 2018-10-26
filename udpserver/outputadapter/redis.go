@@ -2,11 +2,11 @@ package outputadapter
 
 import (
 	"TechPlat/datapipe/config"
-	"TechPlat/datapipe/queue"
+	"TechPlat/datapipe/util/redis"
 )
 
 func OutputRedisAdapter(conf config.OutputAdapter, appid string, logstr string) {
-	q := &queue.Queue{
+	q := &redisutil.Queue{
 		conf.Url,
 		0,
 		conf.ToQueue,

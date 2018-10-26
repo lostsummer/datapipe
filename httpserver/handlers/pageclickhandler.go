@@ -48,12 +48,6 @@ func PageClick(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::PageClick app=[" + params["app"] + "] clickkey=[" + params["clickkey"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf("PageClick")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::PageClick " + err.Error())
-		return nil
-	}
 	dataMap := make(map[string]string)
 	for _, k := range pageClickJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
@@ -66,9 +60,14 @@ func PageClick(ctx dotweb.Context) error {
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::PageClick " + err.Error())
-		return nil
 	} else {
-		qlen, err := pushQueueData(importerConf, string(data))
+
+		target, err := getImporterTarget("PageClick")
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		qlen, err := target.Push(string(data))
 		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
@@ -78,6 +77,6 @@ func PageClick(ctx dotweb.Context) error {
 			}
 			respstr = respFailed
 		}
-		return nil
 	}
+	return nil
 }

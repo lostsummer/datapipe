@@ -30,13 +30,13 @@ func InitRoute(server *dotweb.DotWeb) {
 	server.HttpServer.GET("/test", handlers.Test)
 
 	//根据importer, accumulator开关绑定route
-	importers := config.CurrentConfig.HttpServer.Importers
-	accumulators := config.CurrentConfig.HttpServer.Accumulators
+	imptMap := config.CurrentConfig.ImporterMap
+	accMap := config.CurrentConfig.AccumulatorMap
 
 	//importer_name : routeInfo
 	//原php程序全方法支持, 另外发现web客户端发数据存在方法乱用问题
 	//(例如对 /soft 用 POST) 所以对路由全方法支持
-	var importerRoute = map[string]routeInfo{
+	var imptIDRouteMap = map[string]routeInfo{
 		"PageClick":     {server.HttpServer.Any, "/Page/PageClick", handlers.PageClick},
 		"PageView":      {server.HttpServer.Any, "/Page/PageView", handlers.PageView},
 		"ADView":        {server.HttpServer.Any, "/Page/AdView", handlers.ADView},
@@ -54,22 +54,18 @@ func InitRoute(server *dotweb.DotWeb) {
 		"PageRecords":   {server.HttpServer.Any, "/Mobile/Page", handlers.PageRecordsHandle},
 		"EventRecords":  {server.HttpServer.Any, "/Mobile/Event", handlers.EventRecordsHandle},
 	}
-	var accumulatorRoute = map[string]routeInfo{
+	var accIDRounteMap = map[string]routeInfo{
 		"PVCounter": {server.HttpServer.Any, "/Counter/PV", handlers.PVCounter},
 		"UVCounter": {server.HttpServer.Any, "/Counter/UV", handlers.UVCounter},
 	}
-	for _, importerInfo := range importers {
-		if importerInfo.Enable {
-			if route, exist := importerRoute[importerInfo.Name]; exist {
-				route.bound()
-			}
+	for id := range imptMap {
+		if route, exist := imptIDRouteMap[id]; exist {
+			route.bound()
 		}
 	}
-	for _, accInfo := range accumulators {
-		if accInfo.Enable {
-			if route, exist := accumulatorRoute[accInfo.Name]; exist {
-				route.bound()
-			}
+	for id := range accMap {
+		if route, exist := accIDRounteMap[id]; exist {
+			route.bound()
 		}
 	}
 }

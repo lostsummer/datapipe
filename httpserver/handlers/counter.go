@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/util/redis"
 	"encoding/json"
 	"fmt"
@@ -37,13 +37,36 @@ func dateStr() string {
 	return time.Now().Format("20060102")
 }
 
+func getRedisCli(accConf *config.Accumulator) *redisutil.RedisClient {
+	redisInfo, ok := config.CurrentConfig.RedisMap[accConf.Target.ID]
+	if !ok {
+		panic(global.NotConfigError)
+		return nil
+	}
+	redisURL := redisInfo.URL
+	redisDB, err := strconv.Atoi(redisInfo.DB)
+	if err != nil {
+		redisDB = 0
+	}
+	redisClient := redisutil.GetRedisClient(redisURL)
+	if redisClient == nil {
+		return nil
+	}
+	if redisDB > 0 {
+		err = redisClient.Select(redisDB)
+		if err != nil {
+			return nil
+		}
+	}
+	return redisClient
+}
+
 func counterIncrBy(accConf *config.Accumulator, incr *IncrData) (int64, error) {
-	serverUrl := accConf.ServerUrl
 	category, appid, key := incr.Category, incr.AppID, incr.Key
 	incrVal := 1
 	redisField := fmt.Sprintf("%s:%s", appid, key)
-	redisKey := fmt.Sprintf("%s:%s:%s", accConf.ToCounter, category, dateStr())
-	redisClient := redisutil.GetRedisClient(serverUrl)
+	redisKey := fmt.Sprintf("%s:%s:%s", accConf.Target.Counter, category, dateStr())
+	redisClient := getRedisCli(accConf)
 	if redisClient == nil {
 		return -1, global.GetRedisError
 	}
@@ -58,11 +81,10 @@ func counterIncrBy(accConf *config.Accumulator, incr *IncrData) (int64, error) {
 }
 
 func counterSet(accConf *config.Accumulator, enter *EnterData, val int64) error {
-	serverUrl := accConf.ServerUrl
 	category, appid, key := enter.Category, enter.AppID, enter.Key
-	redisKey := fmt.Sprintf("%s:%s:%s", accConf.ToCounter, category, dateStr())
+	redisKey := fmt.Sprintf("%s:%s:%s", accConf.Target.Counter, category, dateStr())
 	redisField := fmt.Sprintf("%s:%s", appid, key)
-	redisClient := redisutil.GetRedisClient(serverUrl)
+	redisClient := getRedisCli(accConf)
 	if redisClient == nil {
 		return global.GetRedisError
 	}
@@ -77,10 +99,9 @@ func counterSet(accConf *config.Accumulator, enter *EnterData, val int64) error 
 }
 
 func addToSet(accConf *config.Accumulator, enter *EnterData) (int64, error) {
-	serverUrl := accConf.ServerUrl
 	category, appid, key, globalid := enter.Category, enter.AppID, enter.Key, enter.GlobalID
-	redisKey := fmt.Sprintf("%s:%s:%s:%s:%s", accConf.ToSet, category, dateStr(), appid, key)
-	redisClient := redisutil.GetRedisClient(serverUrl)
+	redisKey := fmt.Sprintf("%s:%s:%s:%s:%s", accConf.Target.Set, category, dateStr(), appid, key)
+	redisClient := getRedisCli(accConf)
 	if redisClient == nil {
 		return -1, global.GetRedisError
 	}
@@ -145,13 +166,6 @@ func PVCounter(ctx dotweb.Context) error {
 		respstr = respFailed
 	}
 
-	importerConf, err := getImporterConf("Counter")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::PVCounter " + err.Error())
-		return nil
-	}
-
 	qelem := getCounterQElem(&incr)
 	if qelem == nil {
 		innerLogger.Error("HttpServer::PVCounter incr -> qelem failed")
@@ -165,9 +179,20 @@ func PVCounter(ctx dotweb.Context) error {
 		innerLogger.Error(err.Error())
 		respstr = respFailed
 	} else {
-		_, err = pushQueueData(importerConf, string(data))
+		target, err := getImporterTarget("Counter") // 专为pv数据明细配置的不绑定route的importer
 		if err != nil {
-			innerLogger.Error(err.Error())
+			panic(err)
+			return nil
+		}
+		qlen, err := target.Push(string(data))
+		if qlen > 0 && err == nil {
+			respstr = strconv.FormatInt(qlen, 10)
+		} else {
+			innerLogger.Error("HttpServer::Counter  push queue data failed!")
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
+			respstr = respFailed
 		}
 	}
 	return nil

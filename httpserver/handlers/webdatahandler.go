@@ -46,12 +46,6 @@ func WebData(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::WebData app=[" + params["app"] + "] datakey=[" + params["datakey"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf("WebData")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::WebData " + err.Error())
-		return nil
-	}
 	dataMap := make(map[string]string)
 	for _, k := range webDataJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
@@ -66,9 +60,13 @@ func WebData(ctx dotweb.Context) error {
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::WebData " + err.Error())
-		return nil
 	} else {
-		qlen, err := pushQueueData(importerConf, string(data))
+		target, err := getImporterTarget("WebData")
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		qlen, err := target.Push(string(data))
 		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
@@ -78,6 +76,6 @@ func WebData(ctx dotweb.Context) error {
 			}
 			respstr = respFailed
 		}
-		return nil
 	}
+	return nil
 }

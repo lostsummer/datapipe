@@ -14,7 +14,6 @@ import (
 	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/queue"
 	"TechPlat/datapipe/util/log"
-	"TechPlat/datapipe/util/redis"
 
 	"github.com/devfeel/dotweb"
 )
@@ -90,21 +89,28 @@ func init() {
 	innerLogger = logger.GetInnerLogger()
 }
 
-func getImporterConf(name string) (*config.Importer, error) {
-	impMap := config.CurrentConfig.ImporterMap
-	impConf, exist := impMap[name]
+func getImporterConf(id string) (*config.Importer, error) {
+	conf, exist := config.CurrentConfig.ImporterMap[id]
 	if exist {
-		return impConf, nil
+		return conf, nil
 	} else {
 		return nil, global.NotConfigError
 	}
 }
 
-func getAccumulatorConf(name string) (*config.Accumulator, error) {
-	accMap := config.CurrentConfig.AccumulatorMap
-	accConf, exist := accMap[name]
+func getImporterTarget(id string) (queue.Target, error) {
+	target, exist := config.CurrentConfig.ImporterTargetMap[id]
 	if exist {
-		return accConf, nil
+		return target, nil
+	} else {
+		return nil, global.NotConfigError
+	}
+}
+
+func getAccumulatorConf(id string) (*config.Accumulator, error) {
+	conf, exist := config.CurrentConfig.AccumulatorMap[id]
+	if exist {
+		return conf, nil
 	} else {
 		return nil, global.NotConfigError
 	}
@@ -221,32 +227,6 @@ func getAgentBrowser(ua string) string {
 		}
 	}
 	return "other"
-}
-
-// pushQueueData push data to redis queue
-func pushQueueData(importerConf *config.Importer, val string) (int64, error) {
-	q := &queue.Queue{
-		importerConf.ServerUrl,
-		0,
-		importerConf.ToQueue,
-	}
-	return q.Push(val)
-}
-
-// args expose server and queue
-func pushQueueDataToSQ(server, queue, val string) (int64, error) {
-	redisClient := redisutil.GetRedisClient(server)
-	if redisClient == nil {
-		return -1, global.GetRedisError
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			if s, ok := p.(string); ok {
-				innerLogger.Error(s)
-			}
-		}
-	}()
-	return redisClient.LPush(queue, val)
 }
 
 // 因为php框架对写入cookie的字串Escape处理(主要原因是cookie无法直接存中文字符,

@@ -29,14 +29,14 @@ func PayLog(ctx dotweb.Context) error {
 		innerLogger.Info("HttpServer::PayLog appid=[" + params["appid"] + "] logtype=[" + params["logtype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf("PayLog")
+	data := params["jsondata"]
+
+	target, err := getImporterTarget("PayLog")
 	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::PayLog " + err.Error())
+		panic(err)
 		return nil
 	}
-	data := params["jsondata"]
-	qlen, err := pushQueueData(importerConf, string(data))
+	qlen, err := target.Push(string(data))
 	if qlen > 0 && err == nil {
 		respstr = strconv.FormatInt(qlen, 10)
 	} else {

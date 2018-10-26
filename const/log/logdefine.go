@@ -12,8 +12,16 @@ const (
 )
 
 const (
-	LogTitle_HttpHandler    = "Tasks:HttpHandler"
-	LogTitle_KafkaHandler   = "Tasks:KafkaHandler"
-	LogTitle_MongoDBHandler = "Tasks:MongDBHandler"
-	LogTitle_RedisHandler   = "Tasks:RedisHandler"
+	LogTitle_HttpSource     = "Source:Http"
+	LogTitle_KafkaSource    = "Source:Kafka"
+	LogTitle_MongoDBSource  = "Source:MongDB"
+	LogTitle_RedisSource    = "Source:Redis"
+	LogTitle_HttpTarget     = "Target:Http"
+	LogTitle_KafkaTarget    = "Target:Kafka"
+	LogTitle_MongoDBTarget  = "Target:MongDB"
+	LogTitle_RedisTarget    = "Target:Redis"
+	LogTitle_HttpTrigger    = "Trigger:Http"
+	LogTitle_KafkaTrigger   = "Trigger:Kafka"
+	LogTitle_MongoDBTrigger = "Trigger:MongDB"
+	LogTitle_RedisTrigger   = "Trigger:Redis"
 )

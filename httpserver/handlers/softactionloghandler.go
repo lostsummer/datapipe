@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"TechPlat/datapipe/global"
+	"TechPlat/datapipe/queue"
 	"encoding/json"
 	"reflect"
 	"strconv"
@@ -61,13 +62,6 @@ func SoftActionLog(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	importerConf, err := getImporterConf("SoftActionLog")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::SoftActionLog " + err.Error())
-		return nil
-	}
-
 	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
 		innerLogger.Error("HttpServer::SoftActionLog " + global.LessParamError.Error())
@@ -81,7 +75,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 	datajson = strings.Replace(datajson, "\n", "", -1)
 
 	var actionData []Log
-	err = json.Unmarshal([]byte(datajson), &actionData)
+	err := json.Unmarshal([]byte(datajson), &actionData)
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::SoftActionLog fail to parse post json actionData: " +
@@ -110,13 +104,20 @@ func SoftActionLog(ctx dotweb.Context) error {
 		} else {
 			var qlen int64
 			var err error
-			if isFreeUserPid(dataMap["pid"]) {
-				qlen, err = pushQueueDataToSQ(importerConf.ServerUrl,
-					importerConf.ToQueue+freeuserQueuePostfix,
-					string(data))
-			} else {
-				qlen, err = pushQueueData(importerConf, string(data))
+
+			target, err := getImporterTarget("SoftActionLog")
+			if err != nil {
+				panic(err)
+				return nil
 			}
+			if isFreeUserPid(dataMap["pid"]) {
+				redisTarget, ok := target.(*queue.RedisTarget)
+				if ok {
+					redisTarget.Key += freeuserQueuePostfix
+				}
+			}
+
+			qlen, err = target.Push(string(data))
 			if qlen > 0 && err == nil {
 				respstr = strconv.FormatInt(qlen, 10)
 			} else {
@@ -126,6 +127,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 				}
 				respstr = respFailed
 			}
+
 		}
 	}
 	return nil

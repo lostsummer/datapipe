@@ -69,13 +69,6 @@ func PageRecordsHandle(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	importerConf, err := getImporterConf("PageRecords")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::PageRecords " + err.Error())
-		return nil
-	}
-
 	inputJson := ctx.PostFormValue(postRecsKey)
 	if inputJson == "" {
 		innerLogger.Error("HttpServer::PageRecords " + global.LessParamError.Error())
@@ -84,7 +77,7 @@ func PageRecordsHandle(ctx dotweb.Context) error {
 	}
 
 	var pageRecords PageRecords
-	err = json.Unmarshal([]byte(inputJson), &pageRecords)
+	err := json.Unmarshal([]byte(inputJson), &pageRecords)
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::PageRecords fail to parse post json actionData: " +
@@ -110,13 +103,20 @@ func PageRecordsHandle(ctx dotweb.Context) error {
 			innerLogger.Error("HttpServer::PageRecords " + err.Error())
 			return nil
 		} else {
-			qlen, err := pushQueueData(importerConf, string(outputJson))
-			if qlen <= 0 || err != nil {
-				innerLogger.Error("HttpServer::PageRecords push queue data failed!")
-				innerLogger.Error(err.Error())
-				respstr = respFailed
+			target, err := getImporterTarget("PageRecords")
+			if err != nil {
+				panic(err)
 				return nil
 			}
+			_, err = target.Push(string(outputJson))
+			if err != nil {
+				innerLogger.Error("HttpServer::PageRecords push queue data failed!")
+				if err != nil {
+					innerLogger.Error(err.Error())
+				}
+				respstr = respFailed
+			}
+			return nil
 		}
 	}
 	respstr = fmt.Sprintf("%d", len(pageRecords.Records))
@@ -130,13 +130,6 @@ func EventRecordsHandle(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	importerConf, err := getImporterConf("EventRecords")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::EventRecords " + err.Error())
-		return nil
-	}
-
 	inputJson := ctx.PostFormValue(postRecsKey)
 	if inputJson == "" {
 		innerLogger.Error("HttpServer::EventRecords " + global.LessParamError.Error())
@@ -145,7 +138,7 @@ func EventRecordsHandle(ctx dotweb.Context) error {
 	}
 
 	var eventRecords EventRecords
-	err = json.Unmarshal([]byte(inputJson), &eventRecords)
+	err := json.Unmarshal([]byte(inputJson), &eventRecords)
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::EventRecords fail to parse post json actionData: " +
@@ -172,12 +165,18 @@ func EventRecordsHandle(ctx dotweb.Context) error {
 			innerLogger.Error("HttpServer::EventRecords " + err.Error())
 			return nil
 		} else {
-			qlen, err := pushQueueData(importerConf, string(outputJson))
-			if qlen <= 0 || err != nil {
-				innerLogger.Error("HttpServer::EventRecords push queue data failed!")
-				innerLogger.Error(err.Error())
-				respstr = respFailed
+			target, err := getImporterTarget("EventRecords")
+			if err != nil {
+				panic(err)
 				return nil
+			}
+			_, err = target.Push(string(outputJson))
+			if err != nil {
+				innerLogger.Error("HttpServer::EventRecord push queue data failed!")
+				if err != nil {
+					innerLogger.Error(err.Error())
+				}
+				respstr = respFailed
 			}
 		}
 	}

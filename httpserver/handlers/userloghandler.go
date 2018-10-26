@@ -30,13 +30,12 @@ func userlogbase(ctx dotweb.Context, name string) error {
 		innerLogger.Info("HttpServer::" + name + " appid=[" + params["appid"] + "] logtype=[" + params["logtype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf(name)
+	target, err := getImporterTarget(name)
 	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::" + name + " " + err.Error())
+		panic(err)
 		return nil
 	}
-	qlen, err := pushQueueData(importerConf, string(jsondata))
+	qlen, err := target.Push(string(jsondata))
 	if qlen > 0 && err == nil {
 		respstr = strconv.FormatInt(qlen, 10)
 	} else {
