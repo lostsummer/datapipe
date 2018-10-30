@@ -40,11 +40,37 @@ func InitConfig(configFile string) *AppConfig {
 	}
 
 	var result AppConfig
+	CurrentConfig = &result
 	err = xml.Unmarshal(content, &result)
 	if err != nil {
 		innerLogger.Warn("AppConfig::InitConfig 配置文件[" + configFile + "]解析失败 - " + err.Error())
 		os.Exit(1)
 	}
+
+	result.RedisMap = make(map[string]*Redis)
+	for k, v := range result.Redises {
+		result.RedisMap[v.ID] = &result.Redises[k]
+		innerLogger.Info("AppConfig::InitConfig Load Redises => " + v.ID + "," + v.URL + "," + v.DB)
+	}
+
+	result.MongoDBMap = make(map[string]*MongoDB)
+	for k, v := range result.MongoDBs {
+		result.MongoDBMap[v.ID] = &result.MongoDBs[k]
+		innerLogger.Info("AppConfig::InitConfig Load MongoDBs => " + v.ID + "," + v.URL + "," + v.DB)
+	}
+
+	result.KafkaMap = make(map[string]*Kafka)
+	for k, v := range result.Kafkas {
+		result.KafkaMap[v.ID] = &result.Kafkas[k]
+		innerLogger.Info("AppConfig::InitConfig Load Kafkas => " + v.ID + v.URL)
+	}
+
+	result.HTTPMap = make(map[string]*HTTP)
+	for k, v := range result.HTTPs {
+		result.HTTPMap[v.ID] = &result.HTTPs[k]
+		innerLogger.Info("AppConfig::InitConfig Load HTTPs => " + v.ID + v.URL)
+	}
+
 	result.TaskMap = make(map[string]*TaskInfo)
 	for k, v := range result.Tasks {
 		if v.Enable {
@@ -73,51 +99,41 @@ func InitConfig(configFile string) *AppConfig {
 		}
 	}
 
-	result.RedisMap = make(map[string]*Redis)
-	for k, v := range result.Redises {
-		result.RedisMap[v.ID] = &result.Redises[k]
-		innerLogger.Info("AppConfig::InitConfig Load Redises => " + v.ID + "," + v.URL + "," + v.DB)
-	}
-
-	result.MongoDBMap = make(map[string]*MongoDB)
-	for k, v := range result.MongoDBs {
-		result.RedisMap[v.ID] = &result.Redises[k]
-		innerLogger.Info("AppConfig::InitConfig Load MongoDBs => " + v.ID + "," + v.URL + "," + v.DB)
-	}
-
 	result.ImporterTargetMap = make(map[string]queue.Target)
-	for k, v := range CurrentConfig.ImporterMap {
+	for k, v := range result.ImporterMap {
 		t := getImptTarget(v)
 		if t != nil {
 			result.ImporterTargetMap[k] = t
-		}
-	}
-
-	result.TaskTargetMap = make(map[string]queue.Target)
-	for k, v := range CurrentConfig.TaskMap {
-		t := getTaskTarget(v)
-		if t != nil {
-			result.TaskTargetMap[k] = t
+			innerLogger.Info("AppConfig::InitConfig Load ImporterTargetMap => " + k)
 		}
 	}
 
 	result.TaskSourceMap = make(map[string]queue.Source)
-	for k, v := range CurrentConfig.TaskMap {
+	for k, v := range result.TaskMap {
 		t := getTaskSource(v)
 		if t != nil {
 			result.TaskSourceMap[k] = t
+			innerLogger.Info("AppConfig::InitConfig Load TaskSourceMap => " + k)
+		}
+	}
+
+	result.TaskTargetMap = make(map[string]queue.Target)
+	for k, v := range result.TaskMap {
+		t := getTaskTarget(v)
+		if t != nil {
+			result.TaskTargetMap[k] = t
+			innerLogger.Info("AppConfig::InitConfig Load TaskTargetMap => " + k)
 		}
 	}
 
 	result.TaskTriggerMap = make(map[string]queue.Target)
-	for k, v := range CurrentConfig.TaskMap {
+	for k, v := range result.TaskMap {
 		t := getTaskTrigger(v)
 		if t != nil {
 			result.TaskTriggerMap[k] = t
+			innerLogger.Info("AppConfig::InitConfig Load TaskTriggerMap => " + k)
 		}
 	}
-
-	CurrentConfig = &result
 
 	innerLogger.Info("AppConfig::InitConfig 配置文件[" + configFile + "]完成")
 
@@ -179,7 +195,7 @@ func getRedisSource(qConf *Queue) queue.Source {
 		if err != nil {
 			db = 0 // 目前线上只使用db0, 所以对于配置错误暂时做db=0处理
 		}
-		url := r.DB
+		url := r.URL
 		q := qConf.Queue
 		return &queue.RedisSource{
 			url,
@@ -199,7 +215,7 @@ func getRedisTarget(qConf *Queue) queue.Target {
 		if err != nil {
 			db = 0 // 目前线上只使用db0, 所以对于配置错误暂时做db=0处理
 		}
-		url := r.DB
+		url := r.URL
 		q := qConf.Queue
 		return &queue.RedisTarget{
 			url,

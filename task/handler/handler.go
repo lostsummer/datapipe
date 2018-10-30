@@ -66,7 +66,7 @@ func Handler(ctx *task.TaskContext) error {
 
 	val, err := source.Pop()
 	if err != nil {
-		logger.Log("get source error -> "+err.Error(), taskConf.ID, logdefine.LogLevel_Error)
+		logger.Log("get source data error -> "+err.Error(), taskConf.ID, logdefine.LogLevel_Error)
 		return err
 	}
 
@@ -77,9 +77,9 @@ func Handler(ctx *task.TaskContext) error {
 		_, err := target.Push(val)
 		if err != nil {
 			logger.Log("insert data ["+val+"] error -> "+err.Error(), taskConf.ID, logdefine.LogLevel_Error)
-			return nil
+		} else {
+			logger.Log("insert data success ->["+val+"]", taskConf.ID, logdefine.LogLevel_Debug)
 		}
-		logger.Log("insert data success ->["+val+"]", taskConf.ID, logdefine.LogLevel_Debug)
 	}
 
 	// 处理 trigger, 当前逻辑是返回错误不影响后续工作
@@ -90,9 +90,10 @@ func Handler(ctx *task.TaskContext) error {
 		} else {
 			_, err := trigger.Push(val)
 			if err != nil {
-				return nil
+				logger.Log("trigger error -> "+err.Error(), taskConf.ID, logdefine.LogLevel_Error)
+			} else {
+				logger.Log("trigger data success ->["+val+"]", taskConf.ID, logdefine.LogLevel_Debug)
 			}
-			logger.Log("trigger data success ->["+val+"]", taskConf.ID, logdefine.LogLevel_Debug)
 		}
 
 	}

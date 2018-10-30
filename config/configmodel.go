@@ -18,7 +18,7 @@ type AppConfig struct {
 	Log               Log             `xml:"log"`
 	MongoDBs          []MongoDB       `xml:"mongodbs>mongodb"`
 	Redises           []Redis         `xml:"redises>redis"`
-	Kafkas            []Kafka         `xml:"kafka"`
+	Kafkas            []Kafka         `xml:"kafkas>kafka"`
 	HTTPs             []HTTP          `xml:"https>http"`
 	HttpServer        HttpServer      `xml:"httpserver"`
 	Tasks             []TaskInfo      `xml:"tasks>task"`
@@ -49,7 +49,8 @@ type MongoDB Redis
 
 //kafka配置
 type Kafka struct {
-	URL string `xml:"serverurl,attr"`
+	ID  string `xml:"id,attr"`
+	URL string `xml:"url,attr"`
 }
 
 type HTTP Kafka
