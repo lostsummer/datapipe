@@ -42,26 +42,27 @@ func init() {
 func StartServer() {
 	srvStatus := make(chan string)
 	runSrv := func() {
-		if config.CurrentConfig.HttpServer.Enable {
-			srvConfig := dotconfig.MustInitConfig(ConfigPath + "/dotweb.conf")
-			srv = dotweb.ClassicWithConf(srvConfig)
-			srv.UseRequestLog()
-			if RunEnv == RunEnv_Develop {
-				srv.SetDevelopmentMode()
-			}
-			InitRoute(srv)
-		} else {
+		if config.CurrentConfig.HttpServer.Enable == false {
 			srv = nil
 			srvStatus <- msgSrvNotConfig
 			return
 		}
+		srvConfig := dotconfig.MustInitConfig(ConfigPath + "/dotweb.conf")
+		srv = dotweb.ClassicWithConf(srvConfig)
+		srv.UseRequestLog()
+		if RunEnv == RunEnv_Develop {
+			srv.SetDevelopmentMode()
+		}
+		InitRoute(srv)
 		innerLogger.Debug("httpserver.StartServer => ")
 		if err := srv.Start(); err == http.ErrServerClosed {
+			innerLogger.Debug("httpserver.StartServer recieve close signal")
 			srvStatus <- msgSrvClosed
 		} else {
-			srvStatus <- msgSrvError
 			innerLogger.Error("httpserver.StartServer " + err.Error())
+			srvStatus <- msgSrvError
 		}
+		return
 	}
 
 	go runSrv()
@@ -73,6 +74,7 @@ func StartServer() {
 		case msgSrvError:
 			return
 		case msgSrvNotConfig:
+			innerLogger.Debug("httpserver.StartServer httpserver.enable=false, but also block")
 			<-wait
 			go runSrv()
 		}
