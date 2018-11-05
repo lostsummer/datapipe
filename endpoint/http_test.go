@@ -1,4 +1,4 @@
-package queue
+package endpoint
 
 import (
 	"testing"

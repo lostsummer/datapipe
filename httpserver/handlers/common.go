@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/endpoint"
 	"TechPlat/datapipe/global"
-	"TechPlat/datapipe/queue"
 	"TechPlat/datapipe/util/log"
 
 	"github.com/devfeel/dotweb"
@@ -98,7 +98,7 @@ func getImporterConf(id string) (*config.Importer, error) {
 	}
 }
 
-func getImporterTarget(id string) (queue.Target, error) {
+func getImporterTarget(id string) (endpoint.Target, error) {
 	target, exist := config.CurrentConfig.ImporterTargetMap[id]
 	if exist {
 		return target, nil

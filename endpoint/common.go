@@ -1,4 +1,4 @@
-package queue
+package endpoint
 
 // 适配各种类型target推送逻辑
 type Target interface {

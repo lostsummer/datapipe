@@ -1,7 +1,7 @@
 package config
 
 import (
-	"TechPlat/datapipe/queue"
+	"TechPlat/datapipe/endpoint"
 	"encoding/xml"
 )
 
@@ -31,10 +31,10 @@ type AppConfig struct {
 	MongoDBMap        map[string]*MongoDB
 	KafkaMap          map[string]*Kafka
 	HTTPMap           map[string]*HTTP
-	ImporterTargetMap map[string]queue.Target
-	TaskSourceMap     map[string]queue.Source
-	TaskTargetMap     map[string]queue.Target
-	TaskTriggerMap    map[string]queue.Target
+	ImporterTargetMap map[string]endpoint.Target
+	TaskSourceMap     map[string]endpoint.Source
+	TaskTargetMap     map[string]endpoint.Target
+	TaskTriggerMap    map[string]endpoint.Target
 }
 
 //Redis配置
@@ -64,16 +64,16 @@ type Log struct {
 type TaskInfo struct {
 	ID      string       `xml:"id,attr"`
 	Enable  bool         `xml:"enable,attr"`
-	Source  Queue        `xml:"source"`
-	Target  Queue        `xml:"target"`
-	Trigger Queue        `xml:"trigger"`
+	Source  Endpoint     `xml:"source"`
+	Target  Endpoint     `xml:"target"`
+	Trigger Endpoint     `xml:"trigger"`
 	Counter Task_Counter `xml:"counter"`
 }
 
-type Queue struct {
+type Endpoint struct {
 	Type   string `xml:"type,attr"`
 	ID     string `xml:"id,attr"`
-	Queue  string `xml:"queue,attr"`
+	Sub    string `xml:"sub,attr"`
 	Filter string `xml:"filter,attr"`
 }
 
@@ -90,9 +90,9 @@ type HttpServer struct {
 }
 
 type Importer struct {
-	ID     string `xml:"id,attr"`
-	Enable bool   `xml:"enable,attr"`
-	Target Queue  `xml:"target"`
+	ID     string   `xml:"id,attr"`
+	Enable bool     `xml:"enable,attr"`
+	Target Endpoint `xml:"target"`
 }
 
 type Accumulator struct {
@@ -130,7 +130,7 @@ type OutputAdapter struct {
 
 // 检查是否存在触发器配置
 func (t *TaskInfo) HasTrigger() bool {
-	return t.Trigger.Queue != ""
+	return t.Trigger.Sub != ""
 }
 
 // 检查是否存在触发器过滤字段配置

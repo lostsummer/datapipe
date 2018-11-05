@@ -1,7 +1,7 @@
 package config
 
 import (
-	"TechPlat/datapipe/queue"
+	"TechPlat/datapipe/endpoint"
 	"TechPlat/datapipe/util/log"
 	"encoding/xml"
 	"io/ioutil"
@@ -75,7 +75,7 @@ func InitConfig(configFile string) *AppConfig {
 	for k, v := range result.Tasks {
 		if v.Enable {
 			result.TaskMap[v.ID] = &result.Tasks[k]
-			innerLogger.Info("AppConfig::InitConfig Load Task => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Trigger.ID + "," + v.Trigger.Queue)
+			innerLogger.Info("AppConfig::InitConfig Load Task => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Trigger.ID + "," + v.Trigger.Sub)
 		}
 	}
 
@@ -84,7 +84,7 @@ func InitConfig(configFile string) *AppConfig {
 		for k, v := range result.HttpServer.Importers {
 			if v.Enable {
 				result.ImporterMap[v.ID] = &result.HttpServer.Importers[k]
-				innerLogger.Info("AppConfig::InitConfig Load Importer => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Target.Queue)
+				innerLogger.Info("AppConfig::InitConfig Load Importer => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Target.Sub)
 			}
 		}
 	}
@@ -99,7 +99,7 @@ func InitConfig(configFile string) *AppConfig {
 		}
 	}
 
-	result.ImporterTargetMap = make(map[string]queue.Target)
+	result.ImporterTargetMap = make(map[string]endpoint.Target)
 	for k, v := range result.ImporterMap {
 		t := getImptTarget(v)
 		if t != nil {
@@ -108,7 +108,7 @@ func InitConfig(configFile string) *AppConfig {
 		}
 	}
 
-	result.TaskSourceMap = make(map[string]queue.Source)
+	result.TaskSourceMap = make(map[string]endpoint.Source)
 	for k, v := range result.TaskMap {
 		t := getTaskSource(v)
 		if t != nil {
@@ -117,7 +117,7 @@ func InitConfig(configFile string) *AppConfig {
 		}
 	}
 
-	result.TaskTargetMap = make(map[string]queue.Target)
+	result.TaskTargetMap = make(map[string]endpoint.Target)
 	for k, v := range result.TaskMap {
 		t := getTaskTarget(v)
 		if t != nil {
@@ -126,7 +126,7 @@ func InitConfig(configFile string) *AppConfig {
 		}
 	}
 
-	result.TaskTriggerMap = make(map[string]queue.Target)
+	result.TaskTriggerMap = make(map[string]endpoint.Target)
 	for k, v := range result.TaskMap {
 		t := getTaskTrigger(v)
 		if t != nil {
@@ -140,7 +140,7 @@ func InitConfig(configFile string) *AppConfig {
 	return CurrentConfig
 }
 
-func getImptTarget(imptConf *Importer) queue.Target {
+func getImptTarget(imptConf *Importer) endpoint.Target {
 	switch imptConf.Target.Type {
 	case Target_Redis:
 		return getRedisTarget(&imptConf.Target)
@@ -150,7 +150,7 @@ func getImptTarget(imptConf *Importer) queue.Target {
 
 }
 
-func getTaskTarget(taskConf *TaskInfo) queue.Target {
+func getTaskTarget(taskConf *TaskInfo) endpoint.Target {
 	switch taskConf.Target.Type {
 	case Target_Redis:
 		return getRedisTarget(&taskConf.Target)
@@ -166,7 +166,7 @@ func getTaskTarget(taskConf *TaskInfo) queue.Target {
 
 }
 
-func getTaskSource(taskConf *TaskInfo) queue.Source {
+func getTaskSource(taskConf *TaskInfo) endpoint.Source {
 	switch taskConf.Source.Type {
 	case Target_Redis:
 		return getRedisSource(&taskConf.Source)
@@ -176,7 +176,7 @@ func getTaskSource(taskConf *TaskInfo) queue.Source {
 
 }
 
-func getTaskTrigger(taskConf *TaskInfo) queue.Target {
+func getTaskTrigger(taskConf *TaskInfo) endpoint.Target {
 	getRedisTrigger := getRedisTarget
 	switch taskConf.Trigger.Type {
 	case Target_Redis:
@@ -186,18 +186,18 @@ func getTaskTrigger(taskConf *TaskInfo) queue.Target {
 	}
 }
 
-func getRedisSource(qConf *Queue) queue.Source {
-	if qConf == nil {
+func getRedisSource(ep *Endpoint) endpoint.Source {
+	if ep == nil {
 		return nil
 	}
-	if r, exist := CurrentConfig.RedisMap[qConf.ID]; exist {
+	if r, exist := CurrentConfig.RedisMap[ep.ID]; exist {
 		db, err := strconv.Atoi(r.DB)
 		if err != nil {
 			db = 0 // 目前线上只使用db0, 所以对于配置错误暂时做db=0处理
 		}
 		url := r.URL
-		q := qConf.Queue
-		return &queue.RedisSource{
+		q := ep.Sub
+		return &endpoint.RedisSource{
 			url,
 			db,
 			q,
@@ -206,18 +206,18 @@ func getRedisSource(qConf *Queue) queue.Source {
 	return nil
 }
 
-func getRedisTarget(qConf *Queue) queue.Target {
-	if qConf == nil {
+func getRedisTarget(ep *Endpoint) endpoint.Target {
+	if ep == nil {
 		return nil
 	}
-	if r, exist := CurrentConfig.RedisMap[qConf.ID]; exist {
+	if r, exist := CurrentConfig.RedisMap[ep.ID]; exist {
 		db, err := strconv.Atoi(r.DB)
 		if err != nil {
 			db = 0 // 目前线上只使用db0, 所以对于配置错误暂时做db=0处理
 		}
 		url := r.URL
-		q := qConf.Queue
-		return &queue.RedisTarget{
+		q := ep.Sub
+		return &endpoint.RedisTarget{
 			url,
 			db,
 			q,
@@ -226,15 +226,15 @@ func getRedisTarget(qConf *Queue) queue.Target {
 	return nil
 }
 
-func getMongoDBTarget(qConf *Queue) queue.Target {
-	if qConf == nil {
+func getMongoDBTarget(ep *Endpoint) endpoint.Target {
+	if ep == nil {
 		return nil
 	}
-	if m, exist := CurrentConfig.MongoDBMap[qConf.ID]; exist {
+	if m, exist := CurrentConfig.MongoDBMap[ep.ID]; exist {
 		url := m.URL
 		db := m.DB
-		q := qConf.Queue
-		return &queue.MongoDBTarget{
+		q := ep.Sub
+		return &endpoint.MongoDBTarget{
 			url,
 			db,
 			q,
@@ -243,14 +243,14 @@ func getMongoDBTarget(qConf *Queue) queue.Target {
 	return nil
 }
 
-func getKafkaTarget(qConf *Queue) queue.Target {
-	if qConf == nil {
+func getKafkaTarget(ep *Endpoint) endpoint.Target {
+	if ep == nil {
 		return nil
 	}
-	if k, exist := CurrentConfig.KafkaMap[qConf.ID]; exist {
+	if k, exist := CurrentConfig.KafkaMap[ep.ID]; exist {
 		url := k.URL
-		q := qConf.Queue
-		return &queue.KafkaTarget{
+		q := ep.Sub
+		return &endpoint.KafkaTarget{
 			url,
 			q, //kafka topic
 		}
@@ -258,13 +258,13 @@ func getKafkaTarget(qConf *Queue) queue.Target {
 	return nil
 }
 
-func getHTTPTarget(qConf *Queue) queue.Target {
-	if qConf == nil {
+func getHTTPTarget(ep *Endpoint) endpoint.Target {
+	if ep == nil {
 		return nil
 	}
-	if h, exist := CurrentConfig.HTTPMap[qConf.ID]; exist {
+	if h, exist := CurrentConfig.HTTPMap[ep.ID]; exist {
 		url := h.URL
-		return &queue.HttpTarget{
+		return &endpoint.HttpTarget{
 			url,
 		}
 	}

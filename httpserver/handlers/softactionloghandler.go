@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/endpoint"
 	"TechPlat/datapipe/global"
-	"TechPlat/datapipe/queue"
 	"encoding/json"
 	"reflect"
 	"strconv"
@@ -111,7 +111,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 				return nil
 			}
 			if isFreeUserPid(dataMap["pid"]) {
-				redisTarget, ok := target.(*queue.RedisTarget)
+				redisTarget, ok := target.(*endpoint.RedisTarget)
 				if ok {
 					redisTarget.Key += freeuserQueuePostfix
 				}
