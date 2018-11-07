@@ -4,11 +4,11 @@ import (
 	"TechPlat/datapipe/util/http"
 )
 
-type HttpTarget struct {
+type Http struct {
 	URL string
 }
 
-func (h *HttpTarget) Push(val string) (int64, error) {
+func (h *Http) Push(val string) (int64, error) {
 	//retBody, _, _, httpErr := httputil.HttpPost(h.URL, val, "")
 	_, _, _, httpErr := httputil.HttpPost(h.URL, val, "")
 	if httpErr != nil {

@@ -111,7 +111,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 				return nil
 			}
 			if isFreeUserPid(dataMap["pid"]) {
-				redisTarget, ok := target.(*endpoint.RedisTarget)
+				redisTarget, ok := target.(*endpoint.Redis)
 				if ok {
 					redisTarget.Key += freeuserQueuePostfix
 				}

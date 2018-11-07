@@ -75,7 +75,7 @@ func InitConfig(configFile string) *AppConfig {
 	for k, v := range result.Tasks {
 		if v.Enable {
 			result.TaskMap[v.ID] = &result.Tasks[k]
-			innerLogger.Info("AppConfig::InitConfig Load Task => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Trigger.ID + "," + v.Trigger.Sub)
+			innerLogger.Info("AppConfig::InitConfig Load Task => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Trigger.ID + "," + v.Trigger.Topic)
 		}
 	}
 
@@ -84,7 +84,7 @@ func InitConfig(configFile string) *AppConfig {
 		for k, v := range result.HttpServer.Importers {
 			if v.Enable {
 				result.ImporterMap[v.ID] = &result.HttpServer.Importers[k]
-				innerLogger.Info("AppConfig::InitConfig Load Importer => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Target.Sub)
+				innerLogger.Info("AppConfig::InitConfig Load Importer => " + v.ID + "," + v.Target.Type + "," + v.Target.ID + "," + v.Target.Topic)
 			}
 		}
 	}
@@ -143,7 +143,7 @@ func InitConfig(configFile string) *AppConfig {
 func getImptTarget(imptConf *Importer) endpoint.Target {
 	switch imptConf.Target.Type {
 	case Target_Redis:
-		return getRedisTarget(&imptConf.Target)
+		return getEndPointRedis(&imptConf.Target)
 	default:
 		return nil // http importer 暂无连接redis之外类型target的必要
 	}
@@ -153,13 +153,13 @@ func getImptTarget(imptConf *Importer) endpoint.Target {
 func getTaskTarget(taskConf *TaskInfo) endpoint.Target {
 	switch taskConf.Target.Type {
 	case Target_Redis:
-		return getRedisTarget(&taskConf.Target)
+		return getEndPointRedis(&taskConf.Target)
 	case Target_MongoDB:
-		return getMongoDBTarget(&taskConf.Target)
+		return getEndPointMongoDB(&taskConf.Target)
 	case Target_Kafka:
-		return getKafkaTarget(&taskConf.Target)
+		return getEndPointKafka(&taskConf.Target)
 	case Target_Http:
-		return getHTTPTarget(&taskConf.Target)
+		return getEndPointHttp(&taskConf.Target)
 	default:
 		return nil
 	}
@@ -169,7 +169,7 @@ func getTaskTarget(taskConf *TaskInfo) endpoint.Target {
 func getTaskSource(taskConf *TaskInfo) endpoint.Source {
 	switch taskConf.Source.Type {
 	case Target_Redis:
-		return getRedisSource(&taskConf.Source)
+		return getEndPointRedis(&taskConf.Source)
 	default:
 		return nil // http importer 暂无连接redis之外类型target的必要
 	}
@@ -177,16 +177,15 @@ func getTaskSource(taskConf *TaskInfo) endpoint.Source {
 }
 
 func getTaskTrigger(taskConf *TaskInfo) endpoint.Target {
-	getRedisTrigger := getRedisTarget
 	switch taskConf.Trigger.Type {
 	case Target_Redis:
-		return getRedisTrigger(&taskConf.Trigger)
+		return getEndPointRedis(&taskConf.Trigger)
 	default:
 		return nil // trigger 目前设计仅有redis类型
 	}
 }
 
-func getRedisSource(ep *Endpoint) endpoint.Source {
+func getEndPointRedis(ep *Endpoint) *endpoint.Redis {
 	if ep == nil {
 		return nil
 	}
@@ -195,77 +194,49 @@ func getRedisSource(ep *Endpoint) endpoint.Source {
 		if err != nil {
 			db = 0 // 目前线上只使用db0, 所以对于配置错误暂时做db=0处理
 		}
-		url := r.URL
-		q := ep.Sub
-		return &endpoint.RedisSource{
-			url,
-			db,
-			q,
+		return &endpoint.Redis{
+			Server: r.URL,
+			DB:     db,
+			Key:    ep.Topic,
 		}
 	}
 	return nil
 }
 
-func getRedisTarget(ep *Endpoint) endpoint.Target {
-	if ep == nil {
-		return nil
-	}
-	if r, exist := CurrentConfig.RedisMap[ep.ID]; exist {
-		db, err := strconv.Atoi(r.DB)
-		if err != nil {
-			db = 0 // 目前线上只使用db0, 所以对于配置错误暂时做db=0处理
-		}
-		url := r.URL
-		q := ep.Sub
-		return &endpoint.RedisTarget{
-			url,
-			db,
-			q,
-		}
-	}
-	return nil
-}
-
-func getMongoDBTarget(ep *Endpoint) endpoint.Target {
+func getEndPointMongoDB(ep *Endpoint) *endpoint.MongoDB {
 	if ep == nil {
 		return nil
 	}
 	if m, exist := CurrentConfig.MongoDBMap[ep.ID]; exist {
-		url := m.URL
-		db := m.DB
-		q := ep.Sub
-		return &endpoint.MongoDBTarget{
-			url,
-			db,
-			q,
+		return &endpoint.MongoDB{
+			URL:        m.URL,
+			DB:         m.DB,
+			Collection: ep.Topic,
 		}
 	}
 	return nil
 }
 
-func getKafkaTarget(ep *Endpoint) endpoint.Target {
+func getEndPointKafka(ep *Endpoint) *endpoint.Kafka {
 	if ep == nil {
 		return nil
 	}
 	if k, exist := CurrentConfig.KafkaMap[ep.ID]; exist {
-		url := k.URL
-		q := ep.Sub
-		return &endpoint.KafkaTarget{
-			url,
-			q, //kafka topic
+		return &endpoint.Kafka{
+			URL:   k.URL,
+			Topic: ep.Topic, //kafka topic
 		}
 	}
 	return nil
 }
 
-func getHTTPTarget(ep *Endpoint) endpoint.Target {
+func getEndPointHttp(ep *Endpoint) *endpoint.Http {
 	if ep == nil {
 		return nil
 	}
 	if h, exist := CurrentConfig.HTTPMap[ep.ID]; exist {
-		url := h.URL
-		return &endpoint.HttpTarget{
-			url,
+		return &endpoint.Http{
+			URL: h.URL,
 		}
 	}
 	return nil

@@ -73,7 +73,7 @@ type TaskInfo struct {
 type Endpoint struct {
 	Type   string `xml:"type,attr"`
 	ID     string `xml:"id,attr"`
-	Sub    string `xml:"sub,attr"`
+	Topic  string `xml:"topic,attr"`
 	Filter string `xml:"filter,attr"`
 }
 
@@ -130,7 +130,7 @@ type OutputAdapter struct {
 
 // 检查是否存在触发器配置
 func (t *TaskInfo) HasTrigger() bool {
-	return t.Trigger.Sub != ""
+	return t.Trigger.Topic != ""
 }
 
 // 检查是否存在触发器过滤字段配置

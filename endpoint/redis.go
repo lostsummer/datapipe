@@ -4,15 +4,15 @@ import (
 	"TechPlat/datapipe/util/redis"
 )
 
-type RedisTarget struct {
+type Redis struct {
 	Server string
 	DB     int
 	Key    string
 }
 
-type RedisSource RedisTarget
+//type Redis Redis
 
-func (r *RedisTarget) Push(val string) (int64, error) {
+func (r *Redis) Push(val string) (int64, error) {
 	q := redisutil.Queue{
 		r.Server,
 		r.DB,
@@ -21,7 +21,7 @@ func (r *RedisTarget) Push(val string) (int64, error) {
 	return q.Push(val)
 }
 
-func (r *RedisSource) Pop() (string, error) {
+func (r *Redis) Pop() (string, error) {
 	q := redisutil.Queue{
 		r.Server,
 		r.DB,
