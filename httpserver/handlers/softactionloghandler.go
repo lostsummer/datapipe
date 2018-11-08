@@ -110,10 +110,18 @@ func SoftActionLog(ctx dotweb.Context) error {
 				panic(err)
 				return nil
 			}
+
+			// 此处免费用户写入不同redis队列的逻辑继承自php版本
+			// 因为不能体现在配置上我十分想移至task中借助trigger filter过滤
+			// 但filter目前不支持反向过滤，这使得付费队列中没法滤除免费用户数据
+			// 今后考虑filter支持正则匹配，类似mongodb的find语法
 			if isFreeUserPid(dataMap["pid"]) {
-				redisTarget, ok := target.(*endpoint.Redis)
+				r, ok := target.(*endpoint.Redis)
 				if ok {
-					redisTarget.Key += freeuserQueuePostfix
+					rFree := new(endpoint.Redis)
+					*rFree = *r
+					rFree.Key += freeuserQueuePostfix
+					target = rFree
 				}
 			}
 
