@@ -53,6 +53,8 @@ func InitRoute(server *dotweb.DotWeb) {
 		"LiveDuration":  {server.HttpServer.Any, "/LiveDuration/Data", handlers.LiveDuration},
 		"PageRecords":   {server.HttpServer.Any, "/Mobile/Page", handlers.PageRecordsHandle},
 		"EventRecords":  {server.HttpServer.Any, "/Mobile/Event", handlers.EventRecordsHandle},
+		"LoginInfo":     {server.HttpServer.Any, "/Mobile/LoginInfo", handlers.LoginInfoHandle},
+		"HPSoftLog":     {server.HttpServer.Any, "/Gaojia/SoftLog", handlers.HPSoftLogHandle},
 	}
 	var accIDRounteMap = map[string]routeInfo{
 		"PVCounter": {server.HttpServer.Any, "/Counter/PV", handlers.PVCounter},
