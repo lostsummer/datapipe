@@ -28,6 +28,15 @@ func matchFilter(val string, fltStr string) bool {
 	if err := json.Unmarshal([]byte(val), &jsMap); err != nil {
 		return false
 	}
+	if strings.Contains(fltStr, "$") {
+		kvs := strings.Split(fltStr, "$")
+		for _, kv := range kvs {
+			if !matchFilter(val, kv) {
+				return false
+			}
+		}
+		return true
+	}
 	fKeyValues := strings.Split(fltStr, "=")
 	key := fKeyValues[0]
 	fValues := strings.Split(fKeyValues[1], "|")
