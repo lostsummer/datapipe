@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"fmt"
 
@@ -57,35 +58,36 @@ type EventRecToQ struct {
 	ActionTime int64  `json:"actiontime"`
 }
 
+type LoginInfo struct {
+	AppID      string `json:"appid"`
+	GUID       string `json:"guid"`
+	UserID     int64  `json:"userid"`
+	Event      string `json:"event"`
+	LoginTime  int64  `json:"logintime"`
+	LogoutTime int64  `json:"logouttime"`
+}
+
 const (
-	postRecsKey = "records"
+	postRecsKey      = "records"
+	postLoginInfoKey = "logininfo"
 )
 
 func PageRecordsHandle(ctx dotweb.Context) error {
 	respstr := respFailed
 	defer func() {
-		innerLogger.Info("HttpServer::EventRecords")
+		innerLogger.Info("HttpServer::PageRecords")
 		ctx.WriteString(respstr)
 	}()
 
-	importerConf, err := getImporterConf("PageRecords")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::PageRecords " + err.Error())
-		return nil
-	}
-
 	inputJson := ctx.PostFormValue(postRecsKey)
 	if inputJson == "" {
-		innerLogger.Error("HttpServer::PageRecords " + LessParamError.Error())
-		respstr = respFailed
+		innerLogger.Error("HttpServer::PageRecords " + global.LessParamError.Error())
 		return nil
 	}
 
 	var pageRecords PageRecords
-	err = json.Unmarshal([]byte(inputJson), &pageRecords)
+	err := json.Unmarshal([]byte(inputJson), &pageRecords)
 	if err != nil {
-		respstr = respFailed
 		innerLogger.Error("HttpServer::PageRecords fail to parse post json actionData: " +
 			err.Error() + "\r\n" + inputJson + "\r\n")
 		return nil
@@ -105,15 +107,18 @@ func PageRecordsHandle(ctx dotweb.Context) error {
 		dataToQ.EnterTime = rec.EnterTime
 		dataToQ.QuitTime = rec.QuitTime
 		if outputJson, err := json.Marshal(dataToQ); err != nil {
-			respstr = respFailed
 			innerLogger.Error("HttpServer::PageRecords " + err.Error())
 			return nil
 		} else {
-			qlen, err := pushQueueData(importerConf, string(outputJson))
-			if qlen <= 0 || err != nil {
+			target, err := getImporterTarget("PageRecords")
+			if err != nil {
+				panic(err)
+				return nil
+			}
+			_, err = target.Push(string(outputJson))
+			if err != nil {
 				innerLogger.Error("HttpServer::PageRecords push queue data failed!")
 				innerLogger.Error(err.Error())
-				respstr = respFailed
 				return nil
 			}
 		}
@@ -129,24 +134,15 @@ func EventRecordsHandle(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	importerConf, err := getImporterConf("EventRecords")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::EventRecords " + err.Error())
-		return nil
-	}
-
 	inputJson := ctx.PostFormValue(postRecsKey)
 	if inputJson == "" {
-		innerLogger.Error("HttpServer::EventRecords " + LessParamError.Error())
-		respstr = respFailed
+		innerLogger.Error("HttpServer::EventRecords " + global.LessParamError.Error())
 		return nil
 	}
 
 	var eventRecords EventRecords
-	err = json.Unmarshal([]byte(inputJson), &eventRecords)
+	err := json.Unmarshal([]byte(inputJson), &eventRecords)
 	if err != nil {
-		respstr = respFailed
 		innerLogger.Error("HttpServer::EventRecords fail to parse post json actionData: " +
 			err.Error() + "\r\n" + inputJson + "\r\n")
 		return nil
@@ -167,19 +163,81 @@ func EventRecordsHandle(ctx dotweb.Context) error {
 		dataToQ.EventData = rec.EventData
 		dataToQ.ActionTime = rec.ActionTime
 		if outputJson, err := json.Marshal(dataToQ); err != nil {
-			respstr = respFailed
 			innerLogger.Error("HttpServer::EventRecords " + err.Error())
 			return nil
 		} else {
-			qlen, err := pushQueueData(importerConf, string(outputJson))
-			if qlen <= 0 || err != nil {
-				innerLogger.Error("HttpServer::EventRecords push queue data failed!")
+			target, err := getImporterTarget("EventRecords")
+			if err != nil {
+				panic(err)
+				return nil
+			}
+			_, err = target.Push(string(outputJson))
+			if err != nil {
+				innerLogger.Error("HttpServer::EventRecord push queue data failed!")
 				innerLogger.Error(err.Error())
-				respstr = respFailed
 				return nil
 			}
 		}
 	}
 	respstr = fmt.Sprintf("%d", len(eventRecords.Records))
+	return nil
+}
+
+func LoginInfoHandle(ctx dotweb.Context) error {
+	respstr := respFailed
+	defer func() {
+		innerLogger.Info("HttpServer::LoginInfoHandle")
+		ctx.WriteString(respstr)
+	}()
+
+	inputJson := ctx.PostFormValue(postLoginInfoKey)
+	if inputJson == "" {
+		innerLogger.Error("HttpServer::LoginInfo " + global.LessParamError.Error())
+		return nil
+	}
+
+	var loginInfo LoginInfo
+	err := json.Unmarshal([]byte(inputJson), &loginInfo)
+	if err != nil {
+		innerLogger.Error("HttpServer::LoginInfo fail to parse post json actionData: " +
+			err.Error() + "\r\n" + inputJson + "\r\n")
+		return nil
+	}
+
+	appid := loginInfo.AppID
+	guid := loginInfo.GUID
+	userid := loginInfo.UserID
+	event := loginInfo.Event
+	logintime := loginInfo.LoginTime
+	logouttime := loginInfo.LogoutTime
+
+	dataToQ := make(map[string]interface{})
+	dataToQ["appid"] = appid
+	dataToQ["guid"] = guid
+	dataToQ["userid"] = userid
+	dataToQ["event"] = event
+	dataToQ["logintime"] = logintime
+	if event == "logout" && logouttime > 0 {
+		dataToQ["logouttime"] = logouttime
+	}
+
+	if outputJson, err := json.Marshal(dataToQ); err != nil {
+		innerLogger.Error("HttpServer::LoginInfo " + err.Error())
+		return nil
+	} else {
+		target, err := getImporterTarget("LoginInfo")
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		_, err = target.Push(string(outputJson))
+		if err != nil {
+			innerLogger.Error("HttpServer::LoginInfo push queue data failed!")
+			innerLogger.Error(err.Error())
+			return nil
+		}
+	}
+
+	respstr = fmt.Sprintf("%d", 0)
 	return nil
 }

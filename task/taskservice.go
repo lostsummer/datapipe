@@ -4,7 +4,7 @@ import (
 	"TechPlat/datapipe/config"
 	"TechPlat/datapipe/counter"
 	"TechPlat/datapipe/global"
-	"TechPlat/datapipe/task/tasks"
+	"TechPlat/datapipe/task/handler"
 	"TechPlat/datapipe/util/log"
 	"fmt"
 
@@ -29,16 +29,8 @@ const (
 func LoadTasks(service *task.TaskService) {
 	innerLogger.Info("Task::RegisterTask begin...")
 	for _, v := range config.CurrentConfig.TaskMap {
-		innerLogger.Info("Task::RegisterTask::RegisterTask => " + v.TaskID)
-		switch v.TargetType {
-		case config.Target_MongoDB:
-			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.MongoDBHandler, v)
-		case config.Target_Http:
-			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.HttpHandler, v)
-		case config.Target_Kafka:
-			service.CreateLoopTask(v.TaskID, true, taskDueTime, taskInterval, tasks.KafkaHandler, v)
-		}
-
+		service.CreateLoopTask(v.ID, true,
+			taskDueTime, taskInterval, handler.Handler, v)
 	}
 
 	//load queue task

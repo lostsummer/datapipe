@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -32,7 +33,7 @@ func LiveDuration(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" || params["uid"] == "" || params["classid"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::LiveDuration " + LessParamError.Error())
+		innerLogger.Error("HttpServer::LiveDuration " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {
@@ -41,12 +42,6 @@ func LiveDuration(ctx dotweb.Context) error {
 			"] classid=[" + params["classid"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf("LiveDuration")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::LiveDuration " + err.Error())
-		return nil
-	}
 	dataMap := make(map[string]string)
 	/*
 		App, PID, ClassID, Remark
@@ -61,9 +56,13 @@ func LiveDuration(ctx dotweb.Context) error {
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::LiveDuration " + err.Error())
-		return nil
 	} else {
-		qlen, err := pushQueueData(importerConf, string(data))
+		target, err := getImporterTarget("LiveDuration ")
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		qlen, err := target.Push(string(data))
 		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
@@ -73,6 +72,6 @@ func LiveDuration(ctx dotweb.Context) error {
 			}
 			respstr = respFailed
 		}
-		return nil
 	}
+	return nil
 }

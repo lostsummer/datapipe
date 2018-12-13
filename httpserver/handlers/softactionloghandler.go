@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/endpoint"
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"reflect"
 	"strconv"
@@ -60,16 +62,9 @@ func SoftActionLog(ctx dotweb.Context) error {
 		ctx.WriteString(respstr)
 	}()
 
-	importerConf, err := getImporterConf("SoftActionLog")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::SoftActionLog " + err.Error())
-		return nil
-	}
-
 	datajson := ctx.PostFormValue(postActionDataKey)
 	if datajson == "" {
-		innerLogger.Error("HttpServer::SoftActionLog " + LessParamError.Error())
+		innerLogger.Error("HttpServer::SoftActionLog " + global.LessParamError.Error())
 		respstr = respFailed
 		return nil
 	}
@@ -80,7 +75,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 	datajson = strings.Replace(datajson, "\n", "", -1)
 
 	var actionData []Log
-	err = json.Unmarshal([]byte(datajson), &actionData)
+	err := json.Unmarshal([]byte(datajson), &actionData)
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::SoftActionLog fail to parse post json actionData: " +
@@ -109,13 +104,28 @@ func SoftActionLog(ctx dotweb.Context) error {
 		} else {
 			var qlen int64
 			var err error
-			if isFreeUserPid(dataMap["pid"]) {
-				qlen, err = pushQueueDataToSQ(importerConf.ServerUrl,
-					importerConf.ToQueue+freeuserQueuePostfix,
-					string(data))
-			} else {
-				qlen, err = pushQueueData(importerConf, string(data))
+
+			target, err := getImporterTarget("SoftActionLog")
+			if err != nil {
+				panic(err)
+				return nil
 			}
+
+			// 此处免费用户写入不同redis队列的逻辑继承自php版本
+			// 因为不能体现在配置上我十分想移至task中借助trigger filter过滤
+			// 但filter目前不支持反向过滤，这使得付费队列中没法滤除免费用户数据
+			// 今后考虑filter支持正则匹配，类似mongodb的find语法
+			if isFreeUserPid(dataMap["pid"]) {
+				r, ok := target.(*endpoint.Redis)
+				if ok {
+					rFree := new(endpoint.Redis)
+					*rFree = *r
+					rFree.Key += freeuserQueuePostfix
+					target = rFree
+				}
+			}
+
+			qlen, err = target.Push(string(data))
 			if qlen > 0 && err == nil {
 				respstr = strconv.FormatInt(qlen, 10)
 			} else {
@@ -125,6 +135,7 @@ func SoftActionLog(ctx dotweb.Context) error {
 				}
 				respstr = respFailed
 			}
+
 		}
 	}
 	return nil

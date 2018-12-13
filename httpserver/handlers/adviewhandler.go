@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -25,19 +26,13 @@ func adbase(ctx dotweb.Context, name string) error {
 	}
 	if params["appid"] == "" || params["logtype"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::" + name + " " + LessParamError.Error())
+		innerLogger.Error("HttpServer::" + name + " " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {
 		innerLogger.Info("HttpServer::" + name + " appid=[" + params["appid"] + "] logtype=[" + params["logtype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf(name)
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::" + name + " " + err.Error())
-		return nil
-	}
 	dataMap := make(map[string]interface{})
 	for _, k := range adUrlKeys {
 		if k != "data" {
@@ -45,7 +40,7 @@ func adbase(ctx dotweb.Context, name string) error {
 		}
 	}
 	var queryData map[string]interface{}
-	err = json.Unmarshal([]byte(params["data"]), &queryData)
+	err := json.Unmarshal([]byte(params["data"]), &queryData)
 	if err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::" + name + " fail to parse post json: " +
@@ -100,7 +95,12 @@ func adbase(ctx dotweb.Context, name string) error {
 		innerLogger.Error("HttpServer::" + name + " " + err.Error())
 		return nil
 	} else {
-		qlen, err := pushQueueData(importerConf, string(data))
+		target, err := getImporterTarget(name)
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		qlen, err := target.Push(string(data))
 		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {

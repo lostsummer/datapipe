@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"TechPlat/datapipe/config"
+	"TechPlat/datapipe/endpoint"
+	"TechPlat/datapipe/global"
 	"TechPlat/datapipe/util/log"
-	"TechPlat/datapipe/util/redis"
 
 	"github.com/devfeel/dotweb"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -29,13 +29,6 @@ const (
 	comCookieDomain    = "emoney.cn"
 	cookieValidSeconds = 311040000
 	postActionDataKey  = "ActionData"
-)
-
-var (
-	NotConfigError = errors.New("not exists such config info")
-	LessParamError = errors.New("less param")
-	GetRedisError  = errors.New("get rediscli failed")
-	EscapeError    = errors.New("invalid URL escape")
 )
 
 var (
@@ -96,23 +89,30 @@ func init() {
 	innerLogger = logger.GetInnerLogger()
 }
 
-func getImporterConf(name string) (*config.Importer, error) {
-	impMap := config.CurrentConfig.ImporterMap
-	impConf, exist := impMap[name]
+func getImporterConf(id string) (*config.Importer, error) {
+	conf, exist := config.CurrentConfig.ImporterMap[id]
 	if exist {
-		return impConf, nil
+		return conf, nil
 	} else {
-		return nil, NotConfigError
+		return nil, global.NotConfigError
 	}
 }
 
-func getAccumulatorConf(name string) (*config.Accumulator, error) {
-	accMap := config.CurrentConfig.AccumulatorMap
-	accConf, exist := accMap[name]
+func getImporterTarget(id string) (endpoint.Target, error) {
+	target, exist := config.CurrentConfig.ImporterTargetMap[id]
 	if exist {
-		return accConf, nil
+		return target, nil
 	} else {
-		return nil, NotConfigError
+		return nil, global.NotConfigError
+	}
+}
+
+func getAccumulatorConf(id string) (*config.Accumulator, error) {
+	conf, exist := config.CurrentConfig.AccumulatorMap[id]
+	if exist {
+		return conf, nil
+	} else {
+		return nil, global.NotConfigError
 	}
 }
 
@@ -229,28 +229,6 @@ func getAgentBrowser(ua string) string {
 	return "other"
 }
 
-// pushQueueData push data to redis queue
-func pushQueueData(importerConf *config.Importer, val string) (int64, error) {
-	server, queue := importerConf.ServerUrl, importerConf.ToQueue
-	return pushQueueDataToSQ(server, queue, val)
-}
-
-// args expose server and queue
-func pushQueueDataToSQ(server, queue, val string) (int64, error) {
-	redisClient := redisutil.GetRedisClient(server)
-	if redisClient == nil {
-		return -1, GetRedisError
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			if s, ok := p.(string); ok {
-				innerLogger.Error(s)
-			}
-		}
-	}()
-	return redisClient.LPush(queue, val)
-}
-
 // 因为php框架对写入cookie的字串Escape处理(主要原因是cookie无法直接存中文字符,
 // 其实对于我们写入的时间格式完全不必要),
 // 为了兼容线上以及写入的客户端cookie，也需要对first_visit_time进行escape,
@@ -320,7 +298,7 @@ func URLUnescape(s string) (string, error) {
 				if len(s) > 3 {
 					s = s[:3]
 				}
-				return "", EscapeError
+				return "", global.EscapeError
 			}
 			i += 3
 		case '+':

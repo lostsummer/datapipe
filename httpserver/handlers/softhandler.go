@@ -1,15 +1,12 @@
 package handlers
 
 import (
+	"TechPlat/datapipe/global"
 	"encoding/json"
 	"strconv"
 	"strings"
 
 	"github.com/devfeel/dotweb"
-)
-
-const (
-	defaultSoftQueueKeyForApp = "EMoney.DataPipe:SoftLog_ForApp"
 )
 
 var softJsonKeys = [...]string{
@@ -48,19 +45,13 @@ func Soft(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" || params["optype"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::Soft " + LessParamError.Error())
+		innerLogger.Error("HttpServer::Soft " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {
 		innerLogger.Info("HttpServer::Soft app=[" + params["app"] + "] optype=[" + params["optype"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf("Soft")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::Soft " + err.Error())
-		return nil
-	}
 	dataMap := make(map[string]string)
 	for _, k := range softJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
@@ -81,33 +72,19 @@ func Soft(ctx dotweb.Context) error {
 		innerLogger.Error("HttpServer::Soft " + err.Error())
 		return nil
 	} else {
-		var qlen int64
-		var err error
-		if params["remark"] == "ShowUnInstallBK" {
-			importerConf_, err := getImporterConf("SoftLogForApp")
-			if err != nil { // no SoftLogApp importer config
-				qlen, err = pushQueueDataToSQ(importerConf.ServerUrl,
-					defaultSoftQueueKeyForApp,
-					string(data))
-			} else {
-				qlen, err = pushQueueData(importerConf_, string(data))
-			}
-			if err != nil {
-				innerLogger.Error("HttpServer::Soft push queue data failed!")
-				if err != nil {
-					innerLogger.Error(err.Error())
-				}
-				respstr = respFailed
-				return nil
-
-			}
+		target, err := getImporterTarget("Soft")
+		if err != nil {
+			panic(err)
+			return nil
 		}
-		qlen, err = pushQueueData(importerConf, string(data))
-		if err == nil {
+		qlen, err := target.Push(string(data))
+		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
 			innerLogger.Error("HttpServer::Soft push queue data failed!")
-			innerLogger.Error(err.Error())
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
 		return nil
@@ -122,19 +99,13 @@ func SoftEncrypt(ctx dotweb.Context) error {
 	}
 	if params["app"] == "" {
 		ctx.WriteString(respFailed)
-		innerLogger.Error("HttpServer::SoftEncrypt " + LessParamError.Error())
+		innerLogger.Error("HttpServer::SoftEncrypt " + global.LessParamError.Error())
 		return nil
 	}
 	defer func() {
 		innerLogger.Info("HttpServer::SoftEncrypt app=[" + params["app"] + "]")
 		ctx.WriteString(respstr)
 	}()
-	importerConf, err := getImporterConf("SoftEncrypt")
-	if err != nil {
-		respstr = respFailed
-		innerLogger.Error("HttpServer::SoftEncrypt " + err.Error())
-		return nil
-	}
 	dataMap := make(map[string]string)
 	for _, k := range softEncryptJsonKeys {
 		dataMap[k] = params[strings.ToLower(k)]
@@ -147,16 +118,22 @@ func SoftEncrypt(ctx dotweb.Context) error {
 	if data, err := json.Marshal(dataMap); err != nil {
 		respstr = respFailed
 		innerLogger.Error("HttpServer::SoftEncrypt " + err.Error())
-		return nil
 	} else {
-		qlen, err := pushQueueData(importerConf, string(data))
-		if err == nil {
+		target, err := getImporterTarget("SoftEncrypt")
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		qlen, err := target.Push(string(data))
+		if qlen > 0 && err == nil {
 			respstr = strconv.FormatInt(qlen, 10)
 		} else {
 			innerLogger.Error("HttpServer::SoftEncrypt push queue data failed!")
-			innerLogger.Error(err.Error())
+			if err != nil {
+				innerLogger.Error(err.Error())
+			}
 			respstr = respFailed
 		}
-		return nil
 	}
+	return nil
 }
