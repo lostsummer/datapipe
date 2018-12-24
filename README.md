@@ -37,63 +37,10 @@ http server 使用 dotweb 框架
 
 ### 配置
 
-参见 TechPlat/datapipe/resources/develop/app.conf
+参考：[datapipe 配置文件讲解](http://git.emoney.cn/techplat/datapipe/wikis/datapipe-v1.7-config-file)
 
-新增了 httpserver、importers
-
-```xml
-    <httpserver enable="true">
-        <importer enable="true" name="PageClick" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:PageClickStringQueue"/>
-        <importer enable="true" name="PageView" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:PageViewStringQueue"/>
-        <importer enable="true" name="WebData" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:WebDataStringQueue"/>
-        <importer enable="true" name="AppData" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:AppDataStringQueue"/>
-        <importer enable="true" name="PayLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:PayLogStringQueue"/>
-        <importer enable="true" name="UserLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:Data:UserLogStringQueue"/>
-        <importer enable="true" name="Soft" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:SoftLogStringQueue"/>
-        <importer enable="true" name="SoftActionLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:SoftActionLogJsonQueue"/>
-        <importer enable="true" name="FrontEndLog" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:FrontEndLogJsonQueue"/>
-        <importer enable="true" name="LiveDruation" servertype="redis" serverurl="192.168.8.175:6379" toqueue="EMoney.Tongji:LiveDurationStringQueue"/>
-    </httpserver>
-```
-
-httpserver enable 属性是指定是否开启httpserver的开关
-httpserver 下属 importer 对应每个 http route handler，配置了对应的写入redis地址和对列key, 也有单独的加载开关
-
-httpserver自身运行的配置文件在单独的 dotweb.conf 中
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-<app logpath="logs/" enabledlog="true" runmode="development"/>
-<server isrun="true" port="8080" />
-<appset>
-    <set key="set1" value="1" />
-</appset>
-<middlewares>
-</middlewares>
-<routers>
-</routers>
-<groups>
-</groups>
-</config>　
-
-```
-## 通用计数服务
-
-2018-08 根据需求新增，详见：[wiki](http://git.emoney.cn/techplat/datapipe/wikis/common-counter)
-
-配置, httpserver 下:
-
-```xml
-   <httpserver enable="true">
-        <accumulator enable="true" name="PVCounter" servertype="redis" serverurl="172.28.1.118:6379" tocounter="EMoney.DataPipe:Counter"/>
-        <accumulator enable="true" name="UVCounter" servertype="redis" serverurl="172.28.1.118:6379" tocounter="EMoney.DataPipe:Counter" toset="EMoney.DataPipe:UserSet"/>
-    </httpserver>
-```
-
-"tcounter" 为redis中计数key前缀
-"toset" 为统计去重用户数（用于UV统计）使用的set的key前缀
 
 ## 线上部署情况
 
-参考 [git目录](http://git.emoney.cn/techplat/datapipe/tree/master/resources/deployed)
+线上使用配置 [git目录](http://git.emoney.cn/techplat/datapipe/tree/master/resources/deployed)
+文档：[datapipe 线上维护文档](http://git.emoney.cn/techplat/datapipe/wikis/datapipe-deploy-instruction)
