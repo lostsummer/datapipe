@@ -54,6 +54,7 @@ func InitRoute(server *dotweb.DotWeb) {
 		"PageRecords":   {server.HttpServer.Any, "/Mobile/Page", handlers.PageRecordsHandle},
 		"EventRecords":  {server.HttpServer.Any, "/Mobile/Event", handlers.EventRecordsHandle},
 		"LoginInfo":     {server.HttpServer.Any, "/Mobile/LoginInfo", handlers.LoginInfoHandle},
+		"AsoRank":       {server.HttpServer.Any, "/Mobile/AsoRank", handlers.AsoRankHandle},
 		"HPSoftLog":     {server.HttpServer.Any, "/Gaojia/SoftLog", handlers.HPSoftLogHandle},
 	}
 	var accIDRounteMap = map[string]routeInfo{

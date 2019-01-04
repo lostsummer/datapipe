@@ -67,9 +67,27 @@ type LoginInfo struct {
 	LogoutTime int64  `json:"logouttime"`
 }
 
+type AsoRankRec struct {
+	Id                 string
+	Source             string
+	ClickObjectId      string
+	CallTime           int64
+	LoginTime          int64
+	ClientGuid         string
+	CallbackUrl        string
+	ResponseStatusCode int
+	ResponseContex     string
+	IMEI               string //有可能为null,为下游传""
+	Idfa               string //有可能为null,为下游传""
+	Mac                string //有可能为null,为下游传""
+	AndroidId          string //有可能为null,为下游传""
+	ActiveType         int
+}
+
 const (
 	postRecsKey      = "records"
 	postLoginInfoKey = "logininfo"
+	postAsoKey       = "record"
 )
 
 func PageRecordsHandle(ctx dotweb.Context) error {
@@ -186,7 +204,7 @@ func EventRecordsHandle(ctx dotweb.Context) error {
 func LoginInfoHandle(ctx dotweb.Context) error {
 	respstr := respFailed
 	defer func() {
-		innerLogger.Info("HttpServer::LoginInfoHandle")
+		innerLogger.Info("HttpServer::LoginInfo")
 		ctx.WriteString(respstr)
 	}()
 
@@ -233,6 +251,48 @@ func LoginInfoHandle(ctx dotweb.Context) error {
 		_, err = target.Push(string(outputJson))
 		if err != nil {
 			innerLogger.Error("HttpServer::LoginInfo push queue data failed!")
+			innerLogger.Error(err.Error())
+			return nil
+		}
+	}
+
+	respstr = fmt.Sprintf("%d", 0)
+	return nil
+}
+
+func AsoRankHandle(ctx dotweb.Context) error {
+	respstr := respFailed
+	defer func() {
+		innerLogger.Info("HttpServer::AsoRank")
+		ctx.WriteString(respstr)
+	}()
+
+	inputJson := ctx.PostFormValue(postAsoKey)
+	if inputJson == "" {
+		innerLogger.Error("HttpServer::AsoRank " + global.LessParamError.Error())
+		return nil
+	}
+
+	var asoRank AsoRankRec
+	err := json.Unmarshal([]byte(inputJson), &asoRank)
+	if err != nil {
+		innerLogger.Error("HttpServer::AsoRankRec fail to parse post json actionData: " +
+			err.Error() + "\r\n" + inputJson + "\r\n")
+		return nil
+	}
+
+	if outputJson, err := json.Marshal(asoRank); err != nil {
+		innerLogger.Error("HttpServer::AsoRank " + err.Error())
+		return nil
+	} else {
+		target, err := getImporterTarget("AsoRank")
+		if err != nil {
+			panic(err)
+			return nil
+		}
+		_, err = target.Push(string(outputJson))
+		if err != nil {
+			innerLogger.Error("HttpServer::AsoRank push queue data failed!")
 			innerLogger.Error(err.Error())
 			return nil
 		}
